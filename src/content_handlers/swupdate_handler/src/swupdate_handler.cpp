@@ -164,6 +164,7 @@ ADUC_Result SWUpdateHandlerImpl::Install()
     // This is equivalent to: command << c_installScript << " -l " << _logFolder << " -i '" << _workFolder << "/" << filename << "'"
 
     std::string command = adushconst::path_to_fs_update;
+  
     /*
     @ToDo(schneider) detected if its an ff or af update and append the corresponding option 
     
@@ -175,6 +176,10 @@ ADUC_Result SWUpdateHandlerImpl::Install()
     args.emplace_back(data.str().c_str());
 
     std::string output;
+    Log_Info("Command =: %s", command);
+    Log_Info("Args =: %s", adushconst::rauc_ff_update);
+    Log_Info("Data =: %s", data);
+    Log_Info("Output =: %s", output);
     const int exitCode = ADUC_LaunchChildProcess(command, args, output);
 
     if (exitCode != 0)
