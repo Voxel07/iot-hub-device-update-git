@@ -73,12 +73,14 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
 
         // The exec() functions only return if an error has occurred.
         // The return value is -1, and errno is set to indicate the error.
+        Log_Info("Vor execvp");
         int ret = execvp(command.c_str(), &argv[0]);
-
+        Log_Info("Nach execvp");
         fprintf(stderr, "execvp failed, ret %d, error %d\n", ret, errno);
 
         return ret;
     }
+    Log_Info("Nach pid == 0");
 
     close(filedes[WRITE_END]);
 
@@ -114,6 +116,7 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         // Child process terminated normally.
         // e.g. by calling exit() or _exit(), or by returning from main().
         childExitStatus = WEXITSTATUS(wstatus);
+        Log_Info("Child process terminated normally, signal %d", childExitStatus);
     }
     else if (WIFSIGNALED(wstatus))
     {

@@ -426,13 +426,12 @@ void LinuxPlatformLayer::SandboxDestroy(const char* workflowId, const char* work
         return;
     }
 
-    // Log_Info("Destroying sandbox %s. workflowId: %s", workFolder, workflowId);
-    Log_Info("-----Changed---Not---Destroying sandbox %s. workflowId: %s", workFolder, workflowId);
-
-    // int ret = ADUC_SystemUtils_RmDirRecursive(workFolder);
-    // if (ret != 0)
-    // {
-    //     // Not a fatal error.
-    //     Log_Error("Unable to remove sandbox, error %d", ret);
-    // }
+    Log_Info("Destroying sandbox %s. workflowId: %s", workFolder, workflowId);
+    
+    int ret = ADUC_SystemUtils_RmDirRecursive(workFolder);
+    if (ret != 0)
+    {
+        // Not a fatal error.
+        Log_Error("Unable to remove sandbox, error %d", ret);
+    }
 }
