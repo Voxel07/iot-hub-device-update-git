@@ -157,6 +157,7 @@ ADUC_Result SWUpdateHandlerImpl::Install()
     }
 
     Log_Info("Installing image file: %s", filename);
+    Log_Info("Installing image file:");
 
     // Execute the install command with  "-i <image_file>"  to install the update image file.
     // For swupdate the image file is typically a .swu file
