@@ -157,7 +157,6 @@ ADUC_Result SWUpdateHandlerImpl::Install()
     }
 
     Log_Info("Installing image file: %s", filename);
-    Log_Info("Installing image file:");
 
     // Execute the install command with  "-i <image_file>"  to install the update image file.
     // For swupdate the image file is typically a .swu file
@@ -177,6 +176,9 @@ ADUC_Result SWUpdateHandlerImpl::Install()
     args.emplace_back(data.str().c_str());
 
     std::string output;
+    Log_Info("Command =: %s", command);
+    Log_Info("Args =: %s", adushconst::rauc_ff_update);
+    Log_Info("Output =: %s", output);
     const int exitCode = ADUC_LaunchChildProcess(command, args, output);
 
     if (exitCode != 0)
