@@ -32,7 +32,7 @@ namespace Adu
             const char* target_log_folder_opt = "--target-log-folder";
 
             //F&S Rauc options
-            const char* path_to_fs_update ="usr/bin/FS-Update";
+            const char* path_to_fs_update ="/usr/bin/FS-Update";
             const char* rauc_ff_update = "-ff";
             const char* rauc_af_update = "-af";
             const char* rauc_commit_update = "-cu";

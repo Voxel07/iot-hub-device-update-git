@@ -176,6 +176,7 @@ ADUC_Result SWUpdateHandlerImpl::Install()
     args.emplace_back(data.str().c_str());
 
     std::string output;
+    Log_Info("rauc_ff_update = %s", adushconst::rauc_ff_update);
     Log_Info("Command =: %s", command);
     Log_Info("Args =: %s", adushconst::rauc_ff_update);
     Log_Info("Output =: %s", output);
