@@ -114,7 +114,7 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         // Child process terminated normally.
         // e.g. by calling exit() or _exit(), or by returning from main().
         childExitStatus = WEXITSTATUS(wstatus);
-        Log_Info("WEXISTSTATUS = %s",WEXITSTATUS(wstatus));
+        Log_Info("WEXITSTATUS = %s",WEXITSTATUS(wstatus));
         Log_Info("Child process terminated normally, signal %d", childExitStatus);
     }
     else if (WIFSIGNALED(wstatus))
