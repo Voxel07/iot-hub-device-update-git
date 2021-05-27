@@ -179,7 +179,7 @@ ADUC_Result SWUpdateHandlerImpl::Install()
 
     const int exitCode = ADUC_LaunchChildProcess(command, args, output);
 
-    if (exitCode != 0)
+    if (exitCode != 1)
     {
         Log_Error("Install failed, extendedResultCode = %d", exitCode);
         return ADUC_Result{ ADUC_InstallResult_Failure, exitCode };
