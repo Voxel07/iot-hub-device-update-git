@@ -56,7 +56,7 @@ ADUC_SetUpdateStateHelper(ADUC_WorkflowData* workflowData, ADUCITF_State updateS
     if (updateState == ADUCITF_State_Idle)
     {
         Log_Info("---TMP---updateState == ADUCITF_State_Idle");
-        if (workflowData->LastReportedState == ADUCITF_State_InstallSucceeded)
+        if (workflowData->LastReportedState == ADUCITF_State_ApplyStarted)
         {
             Log_Info("workflowData->LastReportedState == ADUCITF_State_InstallSucceeded");
             if (workflowData->SystemRebootState == ADUC_SystemRebootState_None

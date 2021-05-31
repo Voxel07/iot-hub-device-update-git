@@ -169,7 +169,7 @@ ADUC_Result SWUpdateHandlerImpl::Install()
     @ToDo(schneider) detected if its an ff or af update and append the corresponding option 
     
     */
-    std::vector<std::string> args{ adushconst::rauc_ff_update, adushconst::rauc_debug_mode};
+    std::vector<std::string> args{ adushconst::rauc_ff_update};
 
     std::stringstream data;
     data << _workFolder << "/" << filename;
@@ -208,7 +208,7 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
     // This is equivalent to : command << c_installScript << " -l " << _logFolder << " -a"
 
     // std::string command = adushconst::path_to_fs_update;
-    // std::vector<std::string> args{ adushconst::rauc_commit_update, adushconst::rauc_debug_mode };
+    // std::vector<std::string> args{ adushconst::rauc_commit_update};
 
     // args.emplace_back(adushconst::target_log_folder_opt);
     // args.emplace_back(_logFolder);
