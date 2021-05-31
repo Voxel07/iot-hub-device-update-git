@@ -37,6 +37,7 @@ namespace Adu
             const char* rauc_af_update = "-af";
             const char* rauc_commit_update = "-cu";
             const char* rauc_check_update = "-urs";
+            const char* rauc_debug_mode = "--debug";
 
         } // namespace Const
     } // namespace Shell
