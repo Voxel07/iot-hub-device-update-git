@@ -169,7 +169,7 @@ ADUC_Result SWUpdateHandlerImpl::Install()
     @ToDo(schneider) detected if its an ff or af update and append the corresponding option 
     
     */
-    std::vector<std::string> args{ adushconst::rauc_ff_update};
+    std::vector<std::string> args{ adushconst::rauc_ff_update, adushconst::rauc_debug_mode};
 
     std::stringstream data;
     data << _workFolder << "/" << filename;
@@ -198,32 +198,30 @@ ADUC_Result SWUpdateHandlerImpl::Install()
  */
 ADUC_Result SWUpdateHandlerImpl::Apply()
 {
-    _isApply = true;
-    Log_Info("Applying data from %s", _workFolder.c_str());
+    Log_Info("Apply action called");
+    // _isApply = true;
+    // Log_Info("Applying data from %s", _workFolder.c_str());
 
     // Execute the install command with  "-a" to apply the install by telling
     // the bootloader to boot to the updated partition.
 
     // This is equivalent to : command << c_installScript << " -l " << _logFolder << " -a"
 
-    std::string command = adushconst::adu_shell;
-    std::vector<std::string> args{ adushconst::update_type_opt,
-                                   adushconst::update_type_microsoft_swupdate,
-                                   adushconst::update_action_opt,
-                                   adushconst::update_action_apply };
+    // std::string command = adushconst::path_to_fs_update;
+    // std::vector<std::string> args{ adushconst::rauc_commit_update, adushconst::rauc_debug_mode };
 
-    args.emplace_back(adushconst::target_log_folder_opt);
-    args.emplace_back(_logFolder);
+    // args.emplace_back(adushconst::target_log_folder_opt);
+    // args.emplace_back(_logFolder);
 
-    std::string output;
+    // std::string output;
 
-    const int exitCode = ADUC_LaunchChildProcess(command, args, output);
+    // const int exitCode = ADUC_LaunchChildProcess(command, args, output);
 
-    if (exitCode != 0)
-    {
-        Log_Error("Apply failed, extendedResultCode = %d", exitCode);
-        return ADUC_Result{ ADUC_ApplyResult_Failure, exitCode };
-    }
+    // if (exitCode != 0)
+    // {
+    //     Log_Error("Apply failed, extendedResultCode = %d", exitCode);
+    //     return ADUC_Result{ ADUC_ApplyResult_Failure, exitCode };
+    // }
 
     // Always require a reboot after successful apply
     return ADUC_Result{ ADUC_ApplyResult_SuccessRebootRequired };
@@ -259,6 +257,8 @@ ADUC_Result SWUpdateHandlerImpl::Cancel()
 /*static*/
 std::string SWUpdateHandlerImpl::ReadValueFromFile(const std::string& filePath)
 {
+    Log_Info("---TMP--- ReadValueFromFile");
+
     if (filePath.empty())
     {
         Log_Error("Empty file path.");
@@ -301,6 +301,7 @@ std::string SWUpdateHandlerImpl::ReadValueFromFile(const std::string& filePath)
  */
 ADUC_Result SWUpdateHandlerImpl::IsInstalled(const std::string& installedCriteria)
 {
+    Log_Info("---TMP---IsInstalled call reading from File");
     std::string version{ ReadValueFromFile(ADUC_VERSION_FILE) };
     if (version.empty())
     {
