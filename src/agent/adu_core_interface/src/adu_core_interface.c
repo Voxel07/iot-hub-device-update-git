@@ -442,6 +442,11 @@ void AzureDeviceUpdateCoreInterface_ReportStateAndResultAsync(ADUCITF_State upda
 
     ReportClientJsonProperty(jsonString);
 
+    if(strcmp(ADUCITF_StateToString(updateState),ADUCITF_State_InstallSucceeded)){
+        Log_Info("---TMP---Jetzt würde ich neustarten")
+       // ADUC_MethodCall_RebootSystem();
+    }
+
 done:
 
     json_free_serialized_string(jsonString);

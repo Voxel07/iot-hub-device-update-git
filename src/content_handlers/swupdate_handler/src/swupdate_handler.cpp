@@ -199,29 +199,29 @@ ADUC_Result SWUpdateHandlerImpl::Install()
 ADUC_Result SWUpdateHandlerImpl::Apply()
 {
     Log_Info("Apply action called");
-    // _isApply = true;
-    // Log_Info("Applying data from %s", _workFolder.c_str());
+    _isApply = true;
+     Log_Info("Applying data from %s", _workFolder.c_str());
 
     // Execute the install command with  "-a" to apply the install by telling
     // the bootloader to boot to the updated partition.
 
     // This is equivalent to : command << c_installScript << " -l " << _logFolder << " -a"
 
-    // std::string command = adushconst::path_to_fs_update;
-    // std::vector<std::string> args{ adushconst::rauc_commit_update};
+    std::string command = adushconst::path_to_fs_update;
+    std::vector<std::string> args{ adushconst::rauc_commit_update};
 
-    // args.emplace_back(adushconst::target_log_folder_opt);
-    // args.emplace_back(_logFolder);
+    args.emplace_back(adushconst::target_log_folder_opt);
+    args.emplace_back(_logFolder);
 
-    // std::string output;
+    std::string output;
 
-    // const int exitCode = ADUC_LaunchChildProcess(command, args, output);
+    const int exitCode = ADUC_LaunchChildProcess(command, args, output);
 
-    // if (exitCode != 0)
-    // {
-    //     Log_Error("Apply failed, extendedResultCode = %d", exitCode);
-    //     return ADUC_Result{ ADUC_ApplyResult_Failure, exitCode };
-    // }
+    if (exitCode != 0)
+    {
+        Log_Error("Apply failed, extendedResultCode = %d", exitCode);
+        return ADUC_Result{ ADUC_ApplyResult_Failure, exitCode };
+    }
 
     // Always require a reboot after successful apply
     return ADUC_Result{ ADUC_ApplyResult_SuccessRebootRequired };
