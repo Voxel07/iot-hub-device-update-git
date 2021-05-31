@@ -49,10 +49,15 @@ ADUC_SetUpdateStateHelper(ADUC_WorkflowData* workflowData, ADUCITF_State updateS
     // If we're transitioning from Apply_Started to Idle, we need to report InstalledUpdateId.
     //  if apply succeeded.
     // This is required by ADU service.
+    /**
+     * FS-Updater needs to restart between Install and Apply (cu) action
+    */
     if (updateState == ADUCITF_State_Idle)
     {
-        if (workflowData->LastReportedState == ADUCITF_State_ApplyStarted)
+        Log_Info("---TMP---updateState == ADUCITF_State_Idle");
+        if (workflowData->LastReportedState == ADUCITF_State_InstallSucceeded)
         {
+            Log_Info("workflowData->LastReportedState == ADUCITF_State_InstallSucceeded");
             if (workflowData->SystemRebootState == ADUC_SystemRebootState_None
                 && workflowData->AgentRestartState == ADUC_AgentRestartState_None)
             {
