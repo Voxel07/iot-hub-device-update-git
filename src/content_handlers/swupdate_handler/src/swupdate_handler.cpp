@@ -169,7 +169,7 @@ ADUC_Result SWUpdateHandlerImpl::Install()
     @ToDo(schneider) detected if its an ff or af update and append the corresponding option 
     
     */
-    std::vector<std::string> args{ adushconst::rauc_ff_update};
+    std::vector<std::string> args{ adushconst::rauc_ff_update, adushconst::rauc_debug_mode};
 
     std::stringstream data;
     data << _workFolder << "/" << filename;
