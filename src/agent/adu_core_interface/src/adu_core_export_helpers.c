@@ -51,6 +51,7 @@ ADUC_SetUpdateStateHelper(ADUC_WorkflowData* workflowData, ADUCITF_State updateS
     // This is required by ADU service.
     /**
      * FS-Updater needs to restart between Install and Apply (cu) action
+     * Test
     */
     if (updateState == ADUCITF_State_Idle)
     {
