@@ -25,7 +25,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "adushell_const.hpp"
+// #include "adushell_const.hpp"
+
 /**
  * @brief Runs specified command in a new process and captures output, error messages, and exit code.
  *        The captured output and error messages will be written to ADUC_LOG_FILE.
@@ -49,7 +50,8 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         Log_Error("Cannot create output and error pipes. %s (errno %d).", strerror(errno), errno);
         return ret;
     }
-    if(command == adushconst::path_to_fs_update){
+    // if(command == adushconst::path_to_fs_update){
+    if(command == "/usr/bin/FS-Update"){
         Log_Info("Starting FS-Updater mit %s",args[0]));
     }
     else{
