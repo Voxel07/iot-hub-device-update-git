@@ -525,6 +525,7 @@ void ADUC_Workflow_HandlePropertyUpdate(ADUC_WorkflowData* workflowData, const u
  */
 void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
 {
+    Log_Info("--TMP--ADUC_Workflow_HandleUpdateAction")
     if (workflowData->UpdateActionJson == NULL)
     {
         goto done;
@@ -549,6 +550,7 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
     {
         goto done;
     }
+    Log_Info("---TMP---desiredAction: %d",desiredAction);
 
     //
     // Special case: Cancel is handled here.
@@ -682,6 +684,7 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
 
     if (shouldCallOperationFunc)
     {
+        Log_Info("---TMP---Calling Update Func for Action: ,%s", ADUCITF_UpdateActionToString(entry->Action));
         result = entry->OperationFunc(methodCallData);
     }
 
@@ -691,6 +694,7 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
     // NOLINTNEXTLINE(misc-redundant-expression)
     if (!AducResultCodeIndicatesInProgress(result.ResultCode) || IsAducResultCodeFailure(result.ResultCode))
     {
+        Log_Info("---TMP---ADUC_Workflow_WorkCompletionCallback");
         ADUC_Workflow_WorkCompletionCallback(methodCallData, result);
     }
 
@@ -720,7 +724,7 @@ static void ADUC_Workflow_WorkCompletionCallback(const void* workCompletionToken
         Log_Error("WorkComplete received InProgress result code - should not happen!");
         goto done;
     }
-
+    
     const ADUC_WorkflowHandlerMapEntry* entry = GetWorkflowHandlerMapEntryForAction(workflowData->CurrentAction);
     if (entry == NULL)
     {
@@ -739,7 +743,8 @@ static void ADUC_Workflow_WorkCompletionCallback(const void* workCompletionToken
         ADUCITF_UpdateActionToString(entry->Action),
         result.ResultCode,
         result.ExtendedResultCode);
-
+        
+    Log_Info("---TMP---Hier Wechsel von workflow zu helper ?");
     entry->OperationCompleteFunc(methodCallData, result);
 
     if (IsAducResultCodeSuccess(result.ResultCode))

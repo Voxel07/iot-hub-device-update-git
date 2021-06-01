@@ -440,10 +440,12 @@ void AzureDeviceUpdateCoreInterface_ReportStateAndResultAsync(ADUCITF_State upda
         goto done;
     }
 
+    Log_Info("Reporting new State to Iot Hub");
     ReportClientJsonProperty(jsonString);
 
     if(updateState == ADUCITF_State_InstallSucceeded){
-        Log_Info("---TMP---Jetzt würde ich neustarten");
+        Log_Info("---TMP---Jetzt würde ich neustarten waiting 2sec");
+        wait(2000);
         ADUC_MethodCall_RebootSystem();
     }
 
