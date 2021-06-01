@@ -52,7 +52,7 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
     }
     // if(command == adushconst::path_to_fs_update){
     if(command == "/usr/bin/FS-Update"){
-        Log_Info("Starting FS-Updater mit %s",args[0]));
+        Log_Info("Starting FS-Updater mit %s",args[0]);
     }
     else{
         Log_Info("Calling adu-shell");
