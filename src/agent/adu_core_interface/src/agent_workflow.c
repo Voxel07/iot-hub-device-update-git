@@ -557,7 +557,7 @@ void ADUC_Workflow_HandlePropertyUpdate(ADUC_WorkflowData* workflowData, const u
  */
 void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
 {
-    Log_Info("--TMP--ADUC_Workflow_HandleUpdateAction")
+    Log_Info("--TMP--ADUC_Workflow_HandleUpdateAction");
     if (workflowData->UpdateActionJson == NULL)
     {
         goto done;
