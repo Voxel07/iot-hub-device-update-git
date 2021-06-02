@@ -913,7 +913,7 @@ _Bool IsDuplicateRequest(ADUCITF_UpdateAction action, ADUCITF_State lastReported
         break;
     case ADUCITF_UpdateAction_Apply:
         isDuplicateRequest =
-            (lastReportedState == ADUCITF_State_ApplyStarted || lastReportedState == ADUCITF_State_Idle);
+            (lastReportedState == ADUCITF_State_ApplyStarted);
         break;
     case ADUCITF_UpdateAction_Cancel:
         // Cancel is considered a duplicate action when in the Idle state.
