@@ -467,11 +467,38 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
             goto done;
         }
 
+        /**
+         * This allowes the Agent to start the download when an Update was deployed while the Agent wasn't running
+         * Without that the Agent would just go to Idle mode.
+        */
         if (desiredAction == ADUCITF_UpdateAction_Download)
         {
             Log_Info("There's a pending 'download' action request.");
 
             // There's a pending download request.
+            // We need to make sure we don't change our state to 'idle'.
+            workflowData->StartupIdleCallSent = true;
+
+            ADUC_Workflow_HandleUpdateAction(workflowData);
+            goto done;
+        }
+
+        if(desiredAction == ADUCITF_UpdateAction_Install){
+             Log_Info("There's a pending 'install' action request.");
+
+            // There's a pending download request.
+            // We need to make sure we don't change our state to 'idle'.
+            // workflowData->StartupIdleCallSent = true;
+
+            // ADUC_Workflow_HandleUpdateAction(workflowData);
+            // goto done;
+        }
+
+        if (desiredAction == ADUCITF_UpdateAction_Apply)
+        {
+              Log_Info("There's a pending 'Apply' action request.");
+
+            // There's a pending Apply request.
             // We need to make sure we don't change our state to 'idle'.
             workflowData->StartupIdleCallSent = true;
 
