@@ -25,8 +25,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-// #include "adushell_const.hpp"
-
 /**
  * @brief Runs specified command in a new process and captures output, error messages, and exit code.
  *        The captured output and error messages will be written to ADUC_LOG_FILE.
@@ -82,6 +80,7 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         // The exec() functions only return if an error has occurred.
         // The return value is -1, and errno is set to indicate the error.
         int ret = execvp(command.c_str(), &argv[0]);
+
         fprintf(stderr, "execvp failed, ret %d, error %d\n", ret, errno);
 
         return ret;
@@ -121,7 +120,7 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         // Child process terminated normally.
         // e.g. by calling exit() or _exit(), or by returning from main().
         childExitStatus = WEXITSTATUS(wstatus);
-        Log_Info("Child process terminated normally, signal %d", childExitStatus);
+        Log_Info("---TMP---Child process terminated normally, signal %d", childExitStatus);
     }
     else if (WIFSIGNALED(wstatus))
     {

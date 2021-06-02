@@ -19,7 +19,6 @@ adu_shell_dir=/usr/lib/adu
 adu_shell_file=adu-shell
 
 adu_eis_conf_file=adu.toml
-adu_eis_idtype=device
 eis_idservice_dir=/etc/aziot/identityd/config.d
 
 # adu_user is the user that the ADU Agent daemon will run as.
@@ -120,7 +119,7 @@ register_adu_user_and_process_with_eis() {
         if [ -d "$eis_idservice_dir" ]; then
 
             if [ ! -f "$eis_idservice_dir/$adu_eis_conf_file" ]; then
-                printf "[[principal]]\n name=\"adu\"\n idtype=[\"$adu_eis_idtype\"]\n uid= $(id -u $adu_user)\n" > "$eis_idservice_dir/$adu_eis_conf_file"
+                printf "[[principal]]\n name=\"IoTHubDeviceUpdate\"\n idtype=[\"module\"]\n uid= $(id -u $adu_user)\n" > "$eis_idservice_dir/$adu_eis_conf_file"
                 chown aziotid:aziotid "$eis_idservice_dir/$adu_eis_conf_file"
                 chmod u=rw "$eis_idservice_dir/$adu_eis_conf_file"
             fi
@@ -144,9 +143,11 @@ case "$1" in
         # which is one of the dependencies declared in adu-agent control file.
         # We are assuming that both DO user and group currently exist at this point.
         # Add 'do' user to 'adu' group to allow DO to write to ADU download sandbox.
-        echo "Add the 'do' user to the 'adu' group."
+        echo "Add the 'do' user to the 'adu' group and 'adu' to the 'do' group"
         if getent passwd 'do' > /dev/null; then
             usermod -aG 'adu' 'do'
+            # Note: We must add the 'adu' user to the 'do' group so that we can set the connection_string for DO
+            usermod -aG 'do' 'adu'
 
             # Restart deliveryoptimization-agent service to ensure that the new 'do' user's groups take effect.
             echo "Restart $ms_doclient_lite_service"

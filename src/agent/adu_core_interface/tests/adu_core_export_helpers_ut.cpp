@@ -46,6 +46,8 @@ static uint32_t CodeFromExtendedResultCode(ADUC_Result_t extendedResultCode)
 
 std::condition_variable workCompletionCallbackCV;
 
+#define ADUC_ClientHandle_Invalid (-1)
+
 extern "C"
 {
     static void DownloadProgressCallback(
@@ -119,7 +121,7 @@ public:
     {
         m_previousDeviceHandle = g_iotHubClientHandleForADUComponent;
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        g_iotHubClientHandleForADUComponent = reinterpret_cast<IOTHUB_DEVICE_CLIENT_LL_HANDLE>(-1);
+        g_iotHubClientHandleForADUComponent = reinterpret_cast<ADUC_ClientHandle>(ADUC_ClientHandle_Invalid);
     }
 
     ~TestCaseFixture()
@@ -133,7 +135,7 @@ public:
     TestCaseFixture& operator=(TestCaseFixture&&) = delete;
 
 private:
-    IOTHUB_DEVICE_CLIENT_LL_HANDLE m_previousDeviceHandle;
+    ADUC_ClientHandle m_previousDeviceHandle;
 };
 
 //
@@ -288,11 +290,6 @@ TEST_CASE_METHOD(TestCaseFixture, "MethodCall workflow: Valid")
 
     ADUC_WorkflowData workflowData{};
 
-    const std::string workflowId{ "unit_test" };
-    constexpr size_t workflowIdSize = ARRAY_SIZE(workflowData.WorkflowId);
-    strncpy(workflowData.WorkflowId, workflowId.c_str(), workflowIdSize);
-    workflowData.WorkflowId[workflowIdSize - 1] = '\0';
-
     workflowData.LastReportedState = ADUCITF_State_Idle;
     workflowData.DownloadProgressCallback = DownloadProgressCallback;
 
@@ -332,6 +329,11 @@ TEST_CASE_METHOD(TestCaseFixture, "MethodCall workflow: Valid")
 
     workflowData.CurrentAction = ADUCITF_UpdateAction_Download;
 
+    const std::string workflowId{ "unit_test" };
+    constexpr size_t workflowIdSize = ARRAY_SIZE(workflowData.WorkflowId);
+    strncpy(workflowData.WorkflowId, workflowId.c_str(), workflowIdSize);
+    workflowData.WorkflowId[workflowIdSize - 1] = '\0';
+
     result = ADUC_MethodCall_Download(&methodCallData);
 
     CHECK(result.ResultCode == ADUC_DownloadResult_InProgress);
@@ -344,7 +346,7 @@ TEST_CASE_METHOD(TestCaseFixture, "MethodCall workflow: Valid")
 
     // Wait for async operation completion
     workCompletionCallbackCV.wait(lock);
-    
+
     ADUC_MethodCall_Download_Complete(&methodCallData, result);
 
     //

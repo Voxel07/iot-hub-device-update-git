@@ -41,7 +41,7 @@ set_cache_with_env_or_default (
 
 set_cache_with_env_or_default (
     ADUC_VERSION_MINOR
-    "6"
+    "7"
     STRING
     "The minor part of the semantic version")
 
