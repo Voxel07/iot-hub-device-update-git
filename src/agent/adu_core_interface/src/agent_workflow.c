@@ -484,7 +484,7 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
         }
 
         if(desiredAction == ADUCITF_UpdateAction_Install){
-             Log_Info("There's a pending 'install' action request.");
+             Log_Info("---TMP---There's a pending 'install' action request.");
 
             // There's a pending download request.
             // We need to make sure we don't change our state to 'idle'.
@@ -496,7 +496,9 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
 
         if (desiredAction == ADUCITF_UpdateAction_Apply)
         {
-              Log_Info("There's a pending 'Apply' action request.");
+            Log_Info("---TMP---There's a pending 'Apply' action request.");
+
+            workflowData->LastReportedState = ADUCITF_State_InstallSucceeded;
 
             // There's a pending Apply request.
             // We need to make sure we don't change our state to 'idle'.
