@@ -217,14 +217,14 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
 
     const int exitCode = ADUC_LaunchChildProcess(command, args, output);
 
-    if (exitCode != 0)
+    if (exitCode != 2)
     {
         Log_Error("Apply failed, extendedResultCode = %d", exitCode);
         return ADUC_Result{ ADUC_ApplyResult_Failure, exitCode };
     }
 
     // Always require a reboot after successful apply
-    return ADUC_Result{ ADUC_ApplyResult_SuccessRebootRequired };
+    return ADUC_Result{ ADUC_ApplyResult_Success };
 }
 
 /**
