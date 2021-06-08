@@ -245,7 +245,7 @@ bool UpdateVersionFile(const std::string& newVersion ,const std::string& filePat
         return false;
     }
 
-    Log_Info("Updating version file from %s to %s",newVersion,ReadValueFromFile(filePath));
+    Log_Info("Updating version file from %s to %s",newVersion,SWUpdateHandlerImpl::ReadValueFromFile(filePath));
 
     std::ofstream ofs;
     ofs.open(filePath, std::ofstream::trunc);
@@ -257,6 +257,7 @@ bool UpdateVersionFile(const std::string& newVersion ,const std::string& filePat
     ofs << newVersion;
     
     ofs.close();
+    
     return true;
 }
 
