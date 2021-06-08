@@ -229,7 +229,7 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
      * Update adu-version file in /etc/
     */
 
-    if (UpdateVersionFile("1",_workFolder.c_str())){
+    if (SWUpdateHandlerImpl::UpdateVersionFile("1",_workFolder.c_str())){
         return ADUC_Result{ ADUC_ApplyResult_Success };
     }
 
@@ -237,7 +237,7 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
     return ADUC_Result{ ADUC_ApplyResult_Failure };
 }
 
-bool UpdateVersionFile(const std::string& newVersion ,const std::string& filePath){
+bool SWUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion ,const std::string& filePath){
    
     if (filePath.empty())
     {
