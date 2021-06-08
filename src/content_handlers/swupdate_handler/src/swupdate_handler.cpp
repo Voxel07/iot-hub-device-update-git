@@ -208,10 +208,10 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
     _isApply = true;
    
     std::string command = adushconst::path_to_fs_update;
-    std::vector<std::string> args{ adushconst::rauc_commit_update};
+    std::vector<std::string> args{ adushconst::rauc_commit_update, adushconst::rauc_debug_mode};
 
-    args.emplace_back(adushconst::target_log_folder_opt);
-    args.emplace_back(_logFolder);
+    // args.emplace_back(adushconst::target_log_folder_opt);
+    // args.emplace_back(_logFolder);
 
     std::string output;
 
@@ -237,12 +237,12 @@ bool UpdateVersionFile(const std::string& newVersion ,const std::string& filePat
     if (filePath.empty())
     {
         Log_Error("Empty file path.");
-        return std::string{};
+        return false;
     }
     if ((filePath.length()) + 1 > PATH_MAX)
     {
         Log_Error("Path is too long.");
-        return std::string{};
+        return false;
     }
 
     Log_Info("Updating version file from %s to %s",newVersion,ReadValueFromFile(filePath));
@@ -257,6 +257,7 @@ bool UpdateVersionFile(const std::string& newVersion ,const std::string& filePat
     ofs << newVersion;
     
     ofs.close();
+    return true;
 }
 
 /**
