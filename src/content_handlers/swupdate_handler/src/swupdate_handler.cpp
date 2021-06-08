@@ -205,7 +205,6 @@ ADUC_Result SWUpdateHandlerImpl::Install(/*const std::string& updateType*/)
  */
 ADUC_Result SWUpdateHandlerImpl::Apply()
 {
-    std::cout << "Hallo von Apply"<<std::endl;
     Log_Info("Apply action called");
     _isApply = true;
    
@@ -229,7 +228,7 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
      * Update adu-version file in /etc/
     */
 
-    if (SWUpdateHandlerImpl::UpdateVersionFile("1",_workFolder.c_str())){
+    if (SWUpdateHandlerImpl::UpdateVersionFile("1","/adu/adu-conf.txt")){
         return ADUC_Result{ ADUC_ApplyResult_Success };
     }
 
