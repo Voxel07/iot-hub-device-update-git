@@ -170,6 +170,7 @@ ADUC_Result SWUpdateHandlerImpl::Install()
     
     */
     std::vector<std::string> args{ adushconst::rauc_ff_update};
+    //  std::vector<std::string> args{ adushconst::rauc_ff_update, "", adushconst::rauc_debug_mode};
 
     std::stringstream data;
     data << _workFolder << "/" << filename;

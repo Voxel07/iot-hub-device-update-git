@@ -486,10 +486,19 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
         if(desiredAction == ADUCITF_UpdateAction_Install){
              Log_Info("---TMP---There's a pending 'install' action request.");
 
-            // There's a pending download request.
+            // There's a pending Install request.
             // We need to make sure we don't change our state to 'idle'.
             // workflowData->StartupIdleCallSent = true;
+            
+            /** 
+             * Generate workflowId when we start a workflow.
+             * This is normaly done during the download action. 
+             * Because we are starting with install we have to generate one here.
+            */
+            // workflowData->LastReportedState = ADUCITF_State_DownloadSucceeded;
 
+            // GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+            // Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
             // ADUC_Workflow_HandleUpdateAction(workflowData);
             // goto done;
         }
@@ -498,6 +507,14 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
         {
             Log_Info("---TMP---There's a pending 'Apply' action request.");
 
+            /** 
+             * Generate workflowId when we start a workflow.
+             * This is normaly done during the download action. 
+             * Because we are starting with apply we have to generate one here.
+            */
+            GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+            Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
+
             workflowData->LastReportedState = ADUCITF_State_InstallSucceeded;
 
             // There's a pending Apply request.
@@ -505,6 +522,8 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
             workflowData->StartupIdleCallSent = true;
 
             ADUC_Workflow_HandleUpdateAction(workflowData);
+            Log_Info("---TMP---HandlUpdateAction Finished");
+            ADUC_SetInstalledUpdateIdAndGoToIdle(workflowData, workflowData->ContentData->ExpectedUpdateId);
             goto done;
         }
     }
