@@ -196,7 +196,7 @@ ADUC_Result SWUpdateHandlerImpl::Install(/*const std::string& updateType*/)
 }
 
 /**
- * @brief Apply implementation for swupdate.
+ * @brief Apply implementation for swupdate.s
  * Calls into the swupdate wrapper script to perform apply.
  * Will flip bootloader flag to boot into update partition for A/B update.
  *
@@ -204,6 +204,7 @@ ADUC_Result SWUpdateHandlerImpl::Install(/*const std::string& updateType*/)
  */
 ADUC_Result SWUpdateHandlerImpl::Apply()
 {
+    std::cout << "Hallo von Apply"<<std::endl;
     Log_Info("Apply action called");
     _isApply = true;
    
@@ -217,7 +218,7 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
 
     const int exitCode = ADUC_LaunchChildProcess(command, args, output);
 
-    if (exitCode != 2)
+    if (exitCode != 1)
     {
         Log_Error("Apply failed, extendedResultCode = %d", exitCode);
         return ADUC_Result{ ADUC_ApplyResult_Failure, exitCode };
@@ -227,9 +228,12 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
      * Update adu-version file in /etc/
     */
 
+    if (UpdateVersionFile("1",_workFolder.c_str())){
+        return ADUC_Result{ ADUC_ApplyResult_Success };
+    }
 
     // Always require a reboot after successful apply
-    return ADUC_Result{ ADUC_ApplyResult_Success };
+    return ADUC_Result{ ADUC_ApplyResult_Failure };
 }
 
 bool UpdateVersionFile(const std::string& newVersion ,const std::string& filePath){
@@ -257,7 +261,7 @@ bool UpdateVersionFile(const std::string& newVersion ,const std::string& filePat
     ofs << newVersion;
     
     ofs.close();
-    
+
     return true;
 }
 

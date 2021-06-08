@@ -52,7 +52,7 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
     if(command == "/usr/bin/FS-Update"){
         Log_Info("Starting FS-Updater");
         for (int i = 0; i < args.size(); i++){
-            Log_Info("Arg %d = %s", i, args[i]);
+            Log_Info("Arg %d = %s", i, args[i].c_str());
         }
     }
     else{
