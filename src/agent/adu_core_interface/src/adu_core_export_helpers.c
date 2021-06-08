@@ -773,7 +773,7 @@ void ADUC_MethodCall_Idle(ADUC_WorkflowData* workflowData)
 
     else
     {
-        Log_Info("UpdateAction: Idle. WorkflowId is not generated yet.");
+        Log_Info("UpdateAction: Idle. WorkFolder not set. -> SandboxDestroy was not called");
     }
 
     // Can reach Idle state from ApplyStarted as there isn't an ApplySucceeded state.
@@ -1062,6 +1062,7 @@ done:
 
 void ADUC_MethodCall_Apply_Complete(ADUC_MethodCall_Data* methodCallData, ADUC_Result result)
 {
+    Log_Info("---TMP---ADUC_MethodCall_Apply_Complete");
     ADUC_ApplyInfo* info = methodCallData->MethodSpecificData.ApplyInfo;
 
     ADUC_ApplyInfo_UnInit(info);

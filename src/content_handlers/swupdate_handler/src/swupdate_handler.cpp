@@ -108,7 +108,7 @@ ADUC_Result SWUpdateHandlerImpl::Download()
  *
  * @return ADUC_Result The result of the install.
  */
-ADUC_Result SWUpdateHandlerImpl::Install()
+ADUC_Result SWUpdateHandlerImpl::Install(/*const std::string& updateType*/)
 {
     _isApply = false;
     Log_Info("Installing from %s", _workFolder.c_str());
@@ -158,16 +158,20 @@ ADUC_Result SWUpdateHandlerImpl::Install()
 
     Log_Info("Installing image file: %s", filename);
 
-    // Execute the install command with  "-i <image_file>"  to install the update image file.
-    // For swupdate the image file is typically a .swu file
-
-    // This is equivalent to: command << c_installScript << " -l " << _logFolder << " -i '" << _workFolder << "/" << filename << "'"
-
     std::string command = adushconst::path_to_fs_update;
-  
+   
     /*
-    @ToDo(schneider) detected if its an ff or af update and append the corresponding option 
-    
+    @ToDo detected if its an ff or af update and append the corresponding option 
+        if( updateType == "af"){
+            std::vector<std::string> args{ adushconst::rauc_af_update};
+        }
+        else if(updateType == "ff"){
+            std::vector<std::string> args{ adushconst::rauc_ff_update};
+        }
+        else{
+            Log_Error("Invaliede Update Type");
+            return ADUC_Result{ ADUC_InstallResult_Failure }; 
+        }
     */
     std::vector<std::string> args{ adushconst::rauc_ff_update};
     //  std::vector<std::string> args{ adushconst::rauc_ff_update, "", adushconst::rauc_debug_mode};
@@ -175,9 +179,10 @@ ADUC_Result SWUpdateHandlerImpl::Install()
     std::stringstream data;
     data << _workFolder << "/" << filename;
     args.emplace_back(data.str().c_str());
-
+    args.emplace_back(adushconst::rauc_debug_mode);
     std::string output;
 
+    Log_Info("---TMP---");
     const int exitCode = ADUC_LaunchChildProcess(command, args, output);
 
     if (exitCode != 1)
@@ -201,13 +206,7 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
 {
     Log_Info("Apply action called");
     _isApply = true;
-     Log_Info("Applying data from %s", _workFolder.c_str());
-
-    // Execute the install command with  "-a" to apply the install by telling
-    // the bootloader to boot to the updated partition.
-
-    // This is equivalent to : command << c_installScript << " -l " << _logFolder << " -a"
-
+   
     std::string command = adushconst::path_to_fs_update;
     std::vector<std::string> args{ adushconst::rauc_commit_update};
 
@@ -224,8 +223,40 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
         return ADUC_Result{ ADUC_ApplyResult_Failure, exitCode };
     }
 
+    /**
+     * Update adu-version file in /etc/
+    */
+
+
     // Always require a reboot after successful apply
     return ADUC_Result{ ADUC_ApplyResult_Success };
+}
+
+bool UpdateVersionFile(const std::string& newVersion ,const std::string& filePath){
+   
+    if (filePath.empty())
+    {
+        Log_Error("Empty file path.");
+        return std::string{};
+    }
+    if ((filePath.length()) + 1 > PATH_MAX)
+    {
+        Log_Error("Path is too long.");
+        return std::string{};
+    }
+
+    Log_Info("Updating version file from %s to %s",newVersion,ReadValueFromFile(filePath));
+
+    std::ofstream ofs;
+    ofs.open(filePath, std::ofstream::trunc);
+    if(!ofs.is_open())
+    {
+        Log_Error("File %s failed to open, error: %d", filePath.c_str(), errno);
+    }
+
+    ofs << newVersion;
+    
+    ofs.close();
 }
 
 /**
