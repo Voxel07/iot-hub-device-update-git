@@ -203,9 +203,9 @@ ADUC_Result SWUpdateHandlerImpl::Install(/*const std::string& updateType*/)
  *
  * @return ADUC_Result The result of the apply.
  */
-ADUC_Result SWUpdateHandlerImpl::Apply()
+ADUC_Result SWUpdateHandlerImpl::Apply(const char* workflowId)
 {
-    Log_Info("Apply action called");
+    Log_Info("Apply action called with workflow Id %s", workflowId);
     _isApply = true;
    
     std::string command = adushconst::path_to_fs_update;
@@ -226,14 +226,14 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
 
     /**
      * Update adu-version file in /etc/
-    */
-
-    if (SWUpdateHandlerImpl::UpdateVersionFile("1.0","/etc/adu-version")){
-        return ADUC_Result{ ADUC_ApplyResult_Success };
+    */  
+    if (!SWUpdateHandlerImpl::UpdateVersionFile("1.0","/etc/adu-version")) 
+    {
+        return ADUC_Result{ ADUC_ApplyResult_Failure };
     }
 
-    // Always require a reboot after successful apply
-    return ADUC_Result{ ADUC_ApplyResult_Failure };
+    return ADUC_Result{ ADUC_ApplyResult_Success };
+ 
 }
 
 bool SWUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion ,const std::string& filePath){
