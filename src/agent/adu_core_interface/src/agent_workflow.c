@@ -489,6 +489,13 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
             // There's a pending Install request.
             // We need to make sure we don't change our state to 'idle'.
             // workflowData->StartupIdleCallSent = true;
+
+            /**
+             * We need to check if the agent resatartet or the whole board because the update file is stored in RAM
+             * If board rebbot -> restart download
+             * if agent restart -> validate file in Ram and start install
+             * -    We need to call Handleconstructor bevor Installing. This is normals done during the download action.
+            */
             
             /** 
              * Generate workflowId when we start a workflow.
@@ -498,7 +505,7 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
             // workflowData->LastReportedState = ADUCITF_State_DownloadSucceeded;
 
             // GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
-            // Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
+            // Log_Info("Start the workflow - Install, with WorkflowId %s", workflowData->WorkflowId);
             // ADUC_Workflow_HandleUpdateAction(workflowData);
             // goto done;
         }

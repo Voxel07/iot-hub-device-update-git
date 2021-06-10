@@ -23,19 +23,19 @@ std::unique_ptr<ContentHandler> microsoft_swupdate_CreateFunc(const ContentHandl
  * @class SWUpdateHandlerImpl
  * @brief The swupdate specific implementation of ContentHandler interface.
  */
-class SWUpdateHandlerImpl : public ContentHandler
+class FSUpdateHandlerImpl : public ContentHandler
 {
 public:
     static std::unique_ptr<ContentHandler>
-    CreateContentHandler(const std::string& workFolder, const std::string& logFolder, const std::string& filename);
+    CreateContentHandler(const std::string& workFolder, const std::string& logFolder, const std::string& filename, const std::string& fileType);
 
     // Delete copy ctor, copy assignment, move ctor and move assignment operators.
-    SWUpdateHandlerImpl(const SWUpdateHandlerImpl&) = delete;
-    SWUpdateHandlerImpl& operator=(const SWUpdateHandlerImpl&) = delete;
-    SWUpdateHandlerImpl(SWUpdateHandlerImpl&&) = delete;
-    SWUpdateHandlerImpl& operator=(SWUpdateHandlerImpl&&) = delete;
+    FSUpdateHandlerImpl(const FSUpdateHandlerImpl&) = delete;
+    FSUpdateHandlerImpl& operator=(const FSUpdateHandlerImpl&) = delete;
+    FSUpdateHandlerImpl(FSUpdateHandlerImpl&&) = delete;
+    FSUpdateHandlerImpl& operator=(FSUpdateHandlerImpl&&) = delete;
 
-    ~SWUpdateHandlerImpl() override = default;
+    ~FSUpdateHandlerImpl() override = default;
 
     ADUC_Result Prepare(const ADUC_PrepareInfo* prepareInfo) override;
     ADUC_Result Download() override;
@@ -48,8 +48,8 @@ public:
 
 protected:
     // Protected constructor, must call CreateContentHandler factory method or from derived simulator class
-    SWUpdateHandlerImpl(const std::string& workFolder, const std::string& logFolder, const std::string& filename) :
-        _workFolder{ workFolder }, _logFolder{ logFolder }, _filename{ filename }
+    FSUpdateHandlerImpl(const std::string& workFolder, const std::string& logFolder, const std::string& filename, const std::string& fileType) :
+        _workFolder{ workFolder }, _logFolder{ logFolder }, _filename{ filename }, _fileType{ fileType }
     {
     }
 
@@ -57,6 +57,7 @@ private:
     std::string _workFolder;
     std::string _logFolder;
     std::string _filename;
+    std::string _fileType;
     bool _isApply{ false };
 };
 

@@ -330,7 +330,7 @@ ADUC_Result LinuxPlatformLayer::Install(const char* workflowId, const ADUC_Insta
  */
 ADUC_Result LinuxPlatformLayer::Apply(const char* workflowId, const ADUC_ApplyInfo* /*info*/)
 {
-    ADUC_Result result{ _contentHandler->Apply(workflowId) };
+    ADUC_Result result{ _contentHandler->Apply() };
     if (_IsCancellationRequested)
     {
         Log_Info("Cancellation requested. Cancelling apply. workflowId: %s", workflowId);

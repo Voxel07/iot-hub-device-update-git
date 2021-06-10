@@ -14,7 +14,7 @@
  *
  * @copyright Copyright (c) 2019, Microsoft Corporation.
  */
-#include "aduc/swupdate_handler.hpp"
+#include "aduc/fsupdate_handler.hpp"
 
 #include "aduc/adu_core_exports.h"
 #include "aduc/logging.h"
@@ -42,26 +42,26 @@ namespace adushconst = Adu::Shell::Const;
 std::unique_ptr<ContentHandler> microsoft_swupdate_CreateFunc(const ContentHandlerCreateData& data)
 {
     Log_Info("microsoft_swupdate_CreateFunc called.");
-    return std::unique_ptr<ContentHandler>{ SWUpdateHandlerImpl::CreateContentHandler(
-        data.WorkFolder(), data.LogFolder(), data.Filename()) };
+    return std::unique_ptr<ContentHandler>{ FSUpdateHandlerImpl::CreateContentHandler(
+        data.WorkFolder(), data.LogFolder(), data.Filename(), data.FileType()) };
 }
 
 // Forward declarations.
 static ADUC_Result CancelApply(const char* logFolder);
 
 /**
- * @brief Creates a new SWUpdateHandlerImpl object and casts to a ContentHandler.
- * Note that there is no way to create a SWUpdateHandlerImpl directly.
+ * @brief Creates a new FSUpdateHandlerImpl object and casts to a ContentHandler.
+ * Note that there is no way to create a FSUpdateHandlerImpl directly.
  *
  * @param workFolder The folder where content will be downloaded.
  * @param logFolder The folder where operational logs can be placed.
  * @param filename The .swu image file to be installed by swupdate.
  * @return std::unique_ptr<ContentHandler> SimulatorHandlerImpl object as a ContentHandler.
  */
-std::unique_ptr<ContentHandler> SWUpdateHandlerImpl::CreateContentHandler(
-    const std::string& workFolder, const std::string& logFolder, const std::string& filename)
+std::unique_ptr<ContentHandler> FSUpdateHandlerImpl::CreateContentHandler(
+    const std::string& workFolder, const std::string& logFolder, const std::string& filename, const std::string& fileType)
 {
-    return std::unique_ptr<ContentHandler>{ new SWUpdateHandlerImpl(workFolder, logFolder, filename) };
+    return std::unique_ptr<ContentHandler>{ new FSUpdateHandlerImpl(workFolder, logFolder, filename, fileType) };
 }
 
 /**
@@ -69,18 +69,18 @@ std::unique_ptr<ContentHandler> SWUpdateHandlerImpl::CreateContentHandler(
  * @param prepareInfo.
  * @return bool
  */
-ADUC_Result SWUpdateHandlerImpl::Prepare(const ADUC_PrepareInfo* prepareInfo)
+ADUC_Result FSUpdateHandlerImpl::Prepare(const ADUC_PrepareInfo* prepareInfo)
 {
-    if (prepareInfo->updateTypeVersion != 1)
+    if (prepareInfo->updateTypeVersion != 1 || prepareInfo->updateTypeVersion != 2)
     {
-        Log_Error("SWUpdate packages prepare failed. Wrong Handler Version %d", prepareInfo->updateTypeVersion);
+        Log_Error("FsUpdate packages prepare failed. Wrong Handler Version %d. Set '1' for ff and '2' for af", prepareInfo->updateTypeVersion);
         return ADUC_Result{ ADUC_PrepareResult_Failure,
                             ADUC_ERC_SWUPDATE_HANDLER_PACKAGE_PREPARE_FAILURE_WRONG_VERSION };
     }
 
     if (prepareInfo->fileCount != 1)
     {
-        Log_Error("SWUpdate packages prepare failed. Wrong File Count %d", prepareInfo->fileCount);
+        Log_Error("FsUpdate packages prepare failed. Wrong File Count %d", prepareInfo->fileCount);
         return ADUC_Result{ ADUC_PrepareResult_Failure,
                             ADUC_ERC_SWUPDATE_HANDLER_PACKAGE_PREPARE_FAILURE_WRONG_FILECOUNT };
     }
@@ -96,10 +96,10 @@ ADUC_Result SWUpdateHandlerImpl::Prepare(const ADUC_PrepareInfo* prepareInfo)
  *
  * @return ADUC_Result The result of the download (always success)
  */
-ADUC_Result SWUpdateHandlerImpl::Download()
+ADUC_Result FSUpdateHandlerImpl::Download()
 {
     _isApply = false;
-    Log_Info("Download called - no-op for swupdate");
+    Log_Info("Download called - no-op for fsupdate");
     return ADUC_Result{ ADUC_DownloadResult_Success };
 }
 
@@ -109,7 +109,7 @@ ADUC_Result SWUpdateHandlerImpl::Download()
  *
  * @return ADUC_Result The result of the install.
  */
-ADUC_Result SWUpdateHandlerImpl::Install(/*const std::string& updateType*/)
+ADUC_Result FSUpdateHandlerImpl::Install()
 {
     _isApply = false;
     Log_Info("Installing from %s", _workFolder.c_str());
@@ -160,22 +160,18 @@ ADUC_Result SWUpdateHandlerImpl::Install(/*const std::string& updateType*/)
     Log_Info("Installing image file: %s", filename);
 
     std::string command = adushconst::path_to_fs_update;
+    std::vector<std::string> args{ };
    
-    /*
-    @ToDo detected if its an ff or af update and append the corresponding option 
-        if( updateType == "af"){
-            std::vector<std::string> args{ adushconst::rauc_af_update};
-        }
-        else if(updateType == "ff"){
-            std::vector<std::string> args{ adushconst::rauc_ff_update};
-        }
-        else{
-            Log_Error("Invaliede Update Type");
-            return ADUC_Result{ ADUC_InstallResult_Failure }; 
-        }
-    */
-    std::vector<std::string> args{ adushconst::rauc_ff_update};
-    //  std::vector<std::string> args{ adushconst::rauc_ff_update, "", adushconst::rauc_debug_mode};
+    if( _fileType.c_str() == "af"){
+        args.emplace_back(adushconst::rauc_af_update);
+    }
+    else if(_fileType.c_str() == "ff"){
+        args.emplace_back(adushconst::rauc_ff_update);
+    }
+    else{
+        Log_Error("Invaliede Update Type");
+        return ADUC_Result{ ADUC_InstallResult_Failure }; 
+    }
 
     std::stringstream data;
     data << _workFolder << "/" << filename;
@@ -197,22 +193,21 @@ ADUC_Result SWUpdateHandlerImpl::Install(/*const std::string& updateType*/)
 }
 
 /**
- * @brief Apply implementation for swupdate.s
- * Calls into the swupdate wrapper script to perform apply.
- * Will flip bootloader flag to boot into update partition for A/B update.
+ * @brief Apply implementation for FS-Update
+ * Calls into the FS-Update wrapper script to perform apply.
+ * Will validate a successfull reboot and
+ * flip U-Boot flags update and update-reboot-state to 0 
+ * to mark the newly bootet partition as good and the olde on as inactive
  *
  * @return ADUC_Result The result of the apply.
  */
-ADUC_Result SWUpdateHandlerImpl::Apply()
+ADUC_Result FSUpdateHandlerImpl::Apply()
 {
     Log_Info("Apply action called");
     _isApply = true;
    
     std::string command = adushconst::path_to_fs_update;
     std::vector<std::string> args{ adushconst::rauc_commit_update, adushconst::rauc_debug_mode};
-
-    // args.emplace_back(adushconst::target_log_folder_opt);
-    // args.emplace_back(_logFolder);
 
     std::string output;
 
@@ -227,7 +222,7 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
     /**
      * Update adu-version file in /etc/
     */  
-    if (!SWUpdateHandlerImpl::UpdateVersionFile("1.0","/etc/adu-version")) 
+    if (!FSUpdateHandlerImpl::UpdateVersionFile("1.0","/etc/adu-version")) 
     {
         return ADUC_Result{ ADUC_ApplyResult_Failure };
     }
@@ -236,7 +231,7 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
  
 }
 
-bool SWUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion ,const std::string& filePath){
+bool FSUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion ,const std::string& filePath){
    
     if (filePath.empty())
     {
@@ -249,7 +244,7 @@ bool SWUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion ,const
         return false;
     }
 
-    Log_Info("Updating version file from %s to %s",SWUpdateHandlerImpl::ReadValueFromFile(filePath).c_str(),newVersion.c_str());
+    Log_Info("Updating version file from %s to %s",FSUpdateHandlerImpl::ReadValueFromFile(filePath).c_str(),newVersion.c_str());
 
     std::ofstream ofs;
     ofs.open(filePath, std::ofstream::trunc);
@@ -274,7 +269,7 @@ bool SWUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion ,const
  *
  * @return ADUC_Result The result of the cancel.
  */
-ADUC_Result SWUpdateHandlerImpl::Cancel()
+ADUC_Result FSUpdateHandlerImpl::Cancel()
 {
     if (_isApply)
     {
@@ -293,7 +288,7 @@ ADUC_Result SWUpdateHandlerImpl::Cancel()
  * @return std::string Returns the value from the file. Returns empty string if there was an error.
  */
 /*static*/
-std::string SWUpdateHandlerImpl::ReadValueFromFile(const std::string& filePath)
+std::string FSUpdateHandlerImpl::ReadValueFromFile(const std::string& filePath)
 {
     Log_Info("---TMP--- ReadValueFromFile");
 
@@ -337,7 +332,7 @@ std::string SWUpdateHandlerImpl::ReadValueFromFile(const std::string& filePath)
  *
  * @return ADUC_Result
  */
-ADUC_Result SWUpdateHandlerImpl::IsInstalled(const std::string& installedCriteria)
+ADUC_Result FSUpdateHandlerImpl::IsInstalled(const std::string& installedCriteria)
 {
     Log_Info("---TMP---IsInstalled call reading from File");
     std::string version{ ReadValueFromFile(ADUC_VERSION_FILE) };

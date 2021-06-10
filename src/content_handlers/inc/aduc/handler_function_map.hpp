@@ -59,6 +59,9 @@ const TypeFuncMap handlerCreateFuncs[] = {
 #if ADUC_SWUPDATE_HANDLER
     FUNCMAPENTRY(microsoft, swupdate),
 #endif
+#if ADUC_FSUPDATE_HANDLER
+    FUNCMAPENTRY(fus, fsupdate),
+#endif
 };
 
 #endif // ADUC_HANDLER_FUNCTION_MAP_HPP
