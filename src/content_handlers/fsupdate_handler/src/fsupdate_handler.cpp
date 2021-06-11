@@ -292,7 +292,7 @@ ADUC_Result FSUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion
     
     ofs.close();
 
-    return ADUC_Result{ ADUC_UpdateVersionFileResult_Updated, ADUC_ERC_NOTRECOVERABLE };
+    return ADUC_Result{ ADUC_UpdateVersionFileResult_Updated };
 }
 
 /**
