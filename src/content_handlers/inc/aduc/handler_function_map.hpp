@@ -30,6 +30,13 @@
 
 #endif
 
+#if ADUC_FSUPDATE_HANDLER
+
+#    if !ADUC_SIMULATOR_MODE
+#        include "aduc/fsupdate_handler.hpp"
+#    endif
+#endif
+
 typedef std::function<std::unique_ptr<ContentHandler>(const ContentHandlerCreateData&)> CreateFuncType;
 
 typedef struct tagTypeFuncMap

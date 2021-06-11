@@ -4,8 +4,8 @@
  *
  * @copyright Copyright (c) 2019, Microsoft Corp.
  */
-#ifndef ADUC_SWUPDATE_HANDLER_HPP
-#define ADUC_SWUPDATE_HANDLER_HPP
+#ifndef ADUC_FSUPDATE_HANDLER_HPP
+#define ADUC_FSUPDATE_HANDLER_HPP
 
 #include "aduc/content_handler.hpp"
 #include "aduc/content_handler_factory.hpp"
