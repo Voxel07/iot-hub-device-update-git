@@ -17,6 +17,10 @@
 
 #include <dirent.h>
 
+#ifndef ADUC_VERSION_FILE
+#define ADUC_VERSION_FILE "etc/adu-version"
+#endif
+
 namespace adushconst = Adu::Shell::Const;
 
 /**
@@ -273,33 +277,22 @@ std::string FSUpdateHandlerImpl::ReadValueFromFile(const std::string& filePath)
     return result;
 }
 
-bool FSUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion ,const std::string& filePath){
+ADUC_Result FSUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion){
    
-    if (filePath.empty())
-    {
-        Log_Error("Empty file path.");
-        return false;
-    }
-    if ((filePath.length()) + 1 > PATH_MAX)
-    {
-        Log_Error("Path is too long.");
-        return false;
-    }
-
-    Log_Info("Updating version file from %s to %s",FSUpdateHandlerImpl::ReadValueFromFile(filePath).c_str(),newVersion.c_str());
+    Log_Info("Updating version file from %s to %s",FSUpdateHandlerImpl::ReadValueFromFile(ADUC_VERSION_FILE),newVersion.c_str());
 
     std::ofstream ofs;
-    ofs.open(filePath, std::ofstream::trunc);
+    ofs.open(ADUC_VERSION_FILE, std::ofstream::trunc);
     if(!ofs.is_open())
     {
-        Log_Error("File %s failed to open, error: %d", filePath.c_str(), errno);
+        Log_Error("File %s failed to open, error: %d", ADUC_VERSION_FILE, errno);
     }
 
     ofs << newVersion;
     
     ofs.close();
 
-    return true;
+    return ADUC_Result{ ADUC_UpdateVersionFileResult_Updated, ADUC_ERC_NOTRECOVERABLE };
 }
 
 /**

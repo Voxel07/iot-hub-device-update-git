@@ -43,6 +43,7 @@ public:
     ADUC_Result Apply() override;
     ADUC_Result Cancel() override;
     ADUC_Result IsInstalled(const std::string& installedCriteria) override;
+    ADUC_Result UpdateVersionFile(const std::string& newVersion);
 
     static const ADUC_Result
     GetIsInstalled(const char* installedCriteriaFilePath, const std::string& installedCriteria);

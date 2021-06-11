@@ -43,7 +43,7 @@ public:
     ADUC_Result Apply() override;
     ADUC_Result Cancel() override;
     ADUC_Result IsInstalled(const std::string& installedCriteria) override;
-    static bool UpdateVersionFile(const std::string& newVersion ,const std::string& filePath);
+    ADUC_Result UpdateVersionFile(const std::string& newVersion) override;
     static std::string ReadValueFromFile(const std::string& filePath);
 
 protected:

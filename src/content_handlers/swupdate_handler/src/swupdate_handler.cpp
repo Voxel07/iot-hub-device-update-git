@@ -224,46 +224,12 @@ ADUC_Result SWUpdateHandlerImpl::Apply()
         return ADUC_Result{ ADUC_ApplyResult_Failure, exitCode };
     }
 
-    /**
-     * Update adu-version file in /etc/
-    */  
-    if (!SWUpdateHandlerImpl::UpdateVersionFile("1.0","/etc/adu-version")) 
-    {
-        return ADUC_Result{ ADUC_ApplyResult_Failure };
-    }
+  
 
     return ADUC_Result{ ADUC_ApplyResult_Success };
  
 }
 
-bool SWUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion ,const std::string& filePath){
-   
-    if (filePath.empty())
-    {
-        Log_Error("Empty file path.");
-        return false;
-    }
-    if ((filePath.length()) + 1 > PATH_MAX)
-    {
-        Log_Error("Path is too long.");
-        return false;
-    }
-
-    Log_Info("Updating version file from %s to %s",SWUpdateHandlerImpl::ReadValueFromFile(filePath).c_str(),newVersion.c_str());
-
-    std::ofstream ofs;
-    ofs.open(filePath, std::ofstream::trunc);
-    if(!ofs.is_open())
-    {
-        Log_Error("File %s failed to open, error: %d", filePath.c_str(), errno);
-    }
-
-    ofs << newVersion;
-    
-    ofs.close();
-
-    return true;
-}
 
 /**
  * @brief Cancel implementation for swupdate.
