@@ -32,6 +32,12 @@ namespace AptGetTasks = Adu::Shell::Tasks::AptGet;
 namespace SWUpdateTasks = Adu::Shell::Tasks::SWUpdate;
 #endif
 
+#ifdef ADUSHELL_FSUPDATE
+#    include "swupdate_tasks.hpp"
+namespace SWUpdateTasks = Adu::Shell::Tasks::SWUpdate;
+#endif
+
+
 namespace adushconst = Adu::Shell::Const;
 
 /**
