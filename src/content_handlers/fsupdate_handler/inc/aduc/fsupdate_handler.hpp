@@ -17,7 +17,7 @@
  * @brief handler creation function
  * This function calls  CreateContentHandler from handler factory 
  */
-std::unique_ptr<ContentHandler> microsoft_swupdate_CreateFunc(const ContentHandlerCreateData& data);
+std::unique_ptr<ContentHandler> fus_fsupdate_CreateFunc(const ContentHandlerCreateData& data);
 
 /**
  * @class SWUpdateHandlerImpl

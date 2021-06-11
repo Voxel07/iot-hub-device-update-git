@@ -1,19 +1,3 @@
-/**
- * @file swupdate_handler.cpp
- * @brief Implementation of ContentHandler API for swupdate.
- *
- * Will call into wrapper script for swupdate to install image files.
- *
- * microsoft/swupdate
- * v1:
- *   Description:
- *   Initial revision.
- *
- *   Expected files:
- *   .swu - contains swupdate image.
- *
- * @copyright Copyright (c) 2019, Microsoft Corporation.
- */
 #include "aduc/fsupdate_handler.hpp"
 
 #include "aduc/adu_core_exports.h"
@@ -39,9 +23,9 @@ namespace adushconst = Adu::Shell::Const;
  * @brief handler creation function
  * This function calls  CreateContentHandler from handler factory 
  */
-std::unique_ptr<ContentHandler> microsoft_swupdate_CreateFunc(const ContentHandlerCreateData& data)
+std::unique_ptr<ContentHandler> fus_fsupdate_CreateFunc(const ContentHandlerCreateData& data)
 {
-    Log_Info("microsoft_swupdate_CreateFunc called.");
+    Log_Info("fsupdate_handler_create-called.");
     return std::unique_ptr<ContentHandler>{ FSUpdateHandlerImpl::CreateContentHandler(
         data.WorkFolder(), data.LogFolder(), data.Filename(), data.FileType()) };
 }
@@ -123,11 +107,6 @@ ADUC_Result FSUpdateHandlerImpl::Install()
         return ADUC_Result{ ADUC_InstallResult_Failure, MAKE_ADUC_ERRNO_EXTENDEDRESULTCODE(errno) };
     }
 
-    // Calling the install script to install the update. The script takes the name of the image file as input.
-    // Only one file is expected in the work folder. If multiple files exist, treat it as a failure.
-    // TODO(Nox): Forcing updates to be a single file is a temporary workaround.
-    // We need to have the ability to determine which file is the image file.
-    // Then we can pass the appropriate file to the install script.
     const char* filename = nullptr;
     const dirent* entry = nullptr;
     while ((entry = readdir(directory.get())) != nullptr)
@@ -179,7 +158,6 @@ ADUC_Result FSUpdateHandlerImpl::Install()
     args.emplace_back(adushconst::rauc_debug_mode);
     std::string output;
 
-    Log_Info("---TMP---");
     const int exitCode = ADUC_LaunchChildProcess(command, args, output);
 
     if (exitCode != 1)
@@ -222,42 +200,13 @@ ADUC_Result FSUpdateHandlerImpl::Apply()
     /**
      * Update adu-version file in /etc/
     */  
-    if (!FSUpdateHandlerImpl::UpdateVersionFile("1.0","/etc/adu-version")) 
-    {
-        return ADUC_Result{ ADUC_ApplyResult_Failure };
-    }
+    // if (!FSUpdateHandlerImpl::UpdateVersionFile("1.0"_,"/etc/adu-version")) 
+    // {
+    //     return ADUC_Result{ ADUC_ApplyResult_Failure };
+    // }
 
     return ADUC_Result{ ADUC_ApplyResult_Success };
  
-}
-
-bool FSUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion ,const std::string& filePath){
-   
-    if (filePath.empty())
-    {
-        Log_Error("Empty file path.");
-        return false;
-    }
-    if ((filePath.length()) + 1 > PATH_MAX)
-    {
-        Log_Error("Path is too long.");
-        return false;
-    }
-
-    Log_Info("Updating version file from %s to %s",FSUpdateHandlerImpl::ReadValueFromFile(filePath).c_str(),newVersion.c_str());
-
-    std::ofstream ofs;
-    ofs.open(filePath, std::ofstream::trunc);
-    if(!ofs.is_open())
-    {
-        Log_Error("File %s failed to open, error: %d", filePath.c_str(), errno);
-    }
-
-    ofs << newVersion;
-    
-    ofs.close();
-
-    return true;
 }
 
 /**
@@ -322,6 +271,35 @@ std::string FSUpdateHandlerImpl::ReadValueFromFile(const std::string& filePath)
     // Trim whitespace
     ADUC::StringUtils::Trim(result);
     return result;
+}
+
+bool FSUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion ,const std::string& filePath){
+   
+    if (filePath.empty())
+    {
+        Log_Error("Empty file path.");
+        return false;
+    }
+    if ((filePath.length()) + 1 > PATH_MAX)
+    {
+        Log_Error("Path is too long.");
+        return false;
+    }
+
+    Log_Info("Updating version file from %s to %s",FSUpdateHandlerImpl::ReadValueFromFile(filePath).c_str(),newVersion.c_str());
+
+    std::ofstream ofs;
+    ofs.open(filePath, std::ofstream::trunc);
+    if(!ofs.is_open())
+    {
+        Log_Error("File %s failed to open, error: %d", filePath.c_str(), errno);
+    }
+
+    ofs << newVersion;
+    
+    ofs.close();
+
+    return true;
 }
 
 /**

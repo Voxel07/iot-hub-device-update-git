@@ -627,7 +627,6 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
     {
         goto done;
     }
-    Log_Info("---TMP---desiredAction: %d",desiredAction);
 
     //
     // Special case: Cancel is handled here.
@@ -758,6 +757,28 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
         // Generate workflowId when we start downloading.
         GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
         Log_Info("Start the workflow - downloading, with WorkflowId %s", workflowData->WorkflowId);
+
+        result = ADUC_MethodCall_Prepare(workflowData);
+        shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
+    }
+    /**
+     * Only used when not Starting with Download Action.
+     * wokflowData->StartupIdleCallSent = true skippes the IsInstalled call
+    */
+    else if (entry->Action == ADUCITF_UpdateAction_Install && workflowData->StartupIdleCallSent == true)
+    {
+        // Generate workflowId when we start downloading.
+        GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+        Log_Info("Start the workflow - Installing, with WorkflowId %s", workflowData->WorkflowId);
+
+        result = ADUC_MethodCall_Prepare(workflowData);
+        shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
+    }
+    else if (entry->Action == ADUCITF_UpdateAction_Apply && workflowData->StartupIdleCallSent == true)
+    {
+        // Generate workflowId when we start downloading.
+        GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+        Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
 
         result = ADUC_MethodCall_Prepare(workflowData);
         shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
