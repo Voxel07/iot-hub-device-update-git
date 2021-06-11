@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.5)
 
 set (target_name fsupdate_handler)
 
-set (SOURCE_ALL src/swupdate_handler.cpp)
+set (SOURCE_ALL src/fsupdate_handler.cpp)
 
 add_library (${target_name} STATIC ${SOURCE_ALL})
 
