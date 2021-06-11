@@ -227,6 +227,17 @@ private:
                 return static_cast<LinuxPlatformLayer*>(token)->IsInstalled(workflowId, updateType, installedCriteria);
             });
     }
+    
+    static ADUC_Result UpdateVersionFileCallback(
+    ADUC_Token token, const char* workflowId, const char* updateType, const char* installedCriteria) noexcept
+    {
+        Log_Info("UpdateVersionFileCallback called");
+
+        return ADUC::ExceptionUtils::CallResultMethodAndHandleExceptions(
+            ADUC_UpdateVersionFileResult_Failure, [&token, &workflowId, &updateType, &installedCriteria]() -> ADUC_Result {
+                return static_cast<LinuxPlatformLayer*>(token)->UpdateVersionFile(workflowId, updateType, installedCriteria);
+            });
+    }
 
     /**
      * @brief Implements SandboxCreate callback.
@@ -305,6 +316,7 @@ private:
     void Cancel(const char* workflowId);
 
     ADUC_Result IsInstalled(const char* workflowId, const char* updateType, const char* installedCriteria);
+    ADUC_Result UpdateVersionFile(const char* workflowId, const char* updateType, const char* installedCriteria);
 
     /**
      * @brief Class implementation of SandboxCreate method.

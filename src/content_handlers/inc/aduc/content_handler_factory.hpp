@@ -20,7 +20,7 @@ class ContentHandlerCreateData
 {
 public:
     // Creates an empty ContentHandlerCreateData.
-    // Used to call IsInstalled when outside of a deployment.
+    // Used to call IsInstalled & UpdateVersionFile when outside of a deployment.
     ContentHandlerCreateData() = default;
 
     ContentHandlerCreateData(

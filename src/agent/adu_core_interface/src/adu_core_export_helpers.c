@@ -655,7 +655,7 @@ static _Bool ADUC_RegisterData_VerifyData(const ADUC_RegisterData* registerData)
         || registerData->InstallCallback == NULL || registerData->ApplyCallback == NULL
         || registerData->SandboxCreateCallback == NULL || registerData->SandboxDestroyCallback == NULL
         || registerData->PrepareCallback == NULL || registerData->DoWorkCallback == NULL
-        || registerData->IsInstalledCallback == NULL)
+        || registerData->IsInstalledCallback == NULL || registerData->UpdateVersionFileCallback == NULL) 
     {
         Log_Error("Invalid ADUC_RegisterData object");
         return false;
@@ -1148,6 +1148,31 @@ ADUC_Result ADUC_MethodCall_IsInstalled(const ADUC_WorkflowData* workflowData)
     const ADUC_RegisterData* registerData = &(workflowData->RegisterData);
     Log_Info("Calling IsInstalledCallback to check if content is installed.");
     return registerData->IsInstalledCallback(
+        registerData->Token,
+        workflowData->WorkflowId,
+        workflowData->ContentData->UpdateType,
+        workflowData->ContentData->InstalledCriteria);
+}
+
+/**
+ * @brief Helper to call into the platform layer for UpdateVersionFile.
+ *
+ * @param[in] workflowData The workflow data.
+ *
+ * @return ADUC_Result The result of the UpdateVersionFile call.
+ */
+ADUC_Result ADUC_MethodCall_UpdateVersionFile(const ADUC_WorkflowData* workflowData)
+{
+    if (workflowData->ContentData == NULL)
+    {
+        Log_Info("UpdateVersionFile called before installedCriteria has been initialized.");
+        ADUC_Result result = { .ResultCode = ADUC_UpdateVersionFileResult_Failure };
+        return result;
+    }
+
+    const ADUC_RegisterData* registerData = &(workflowData->RegisterData);
+    Log_Info("Calling UpdateVersionFileCallback.");
+    return registerData->UpdateVersionFileCallback(
         registerData->Token,
         workflowData->WorkflowId,
         workflowData->ContentData->UpdateType,
