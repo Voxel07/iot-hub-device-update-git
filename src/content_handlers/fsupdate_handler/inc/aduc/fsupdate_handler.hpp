@@ -59,6 +59,13 @@ private:
     std::string _filename;
     std::string _fileType;
     bool _isApply{ false };
+
+    const std::string _pathToFsUpdate = "/usr/bin/FS-Update";
+    const std::string _installFirmwareFile = "-ff";
+    const std::string _installApplicationFile = "-af";
+    const std::string _commitUpdate = "-cu";
+    const std::string _getRebootState = "-urs";
+    const std::string _debugMode = "--debug";
 };
 
 #endif // ADUC_SWUPDATE_HANDLER_HPP

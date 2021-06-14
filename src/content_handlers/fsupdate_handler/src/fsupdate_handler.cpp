@@ -5,7 +5,6 @@
 #include "aduc/process_utils.hpp"
 #include "aduc/string_utils.hpp"
 #include "aduc/system_utils.h"
-#include "adushell_const.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -21,7 +20,7 @@
 #define ADUC_VERSION_FILE "etc/adu-version"
 #endif
 
-namespace adushconst = Adu::Shell::Const;
+
 
 /**
  * @brief handler creation function
@@ -142,14 +141,14 @@ ADUC_Result FSUpdateHandlerImpl::Install()
 
     Log_Info("Installing image file: %s", filename);
 
-    std::string command = adushconst::path_to_fs_update;
+    std::string command = _pathToFsUpdate;
     std::vector<std::string> args{ };
    
     if( _fileType.c_str() == "af"){
-        args.emplace_back(adushconst::rauc_af_update);
+        args.emplace_back(_installApplicationFile);
     }
     else if(_fileType.c_str() == "ff"){
-        args.emplace_back(adushconst::rauc_ff_update);
+        args.emplace_back(_installFirmwareFile);
     }
     else{
         Log_Error("Invaliede Update Type");
@@ -159,7 +158,7 @@ ADUC_Result FSUpdateHandlerImpl::Install()
     std::stringstream data;
     data << _workFolder << "/" << filename;
     args.emplace_back(data.str().c_str());
-    args.emplace_back(adushconst::rauc_debug_mode);
+    args.emplace_back(_debugMode);
     std::string output;
 
     const int exitCode = ADUC_LaunchChildProcess(command, args, output);
@@ -188,8 +187,8 @@ ADUC_Result FSUpdateHandlerImpl::Apply()
     Log_Info("Apply action called");
     _isApply = true;
    
-    std::string command = adushconst::path_to_fs_update;
-    std::vector<std::string> args{ adushconst::rauc_commit_update, adushconst::rauc_debug_mode};
+    std::string command = _pathToFsUpdate;
+    std::vector<std::string> args{ _commitUpdate, _debugMode};
 
     std::string output;
 
@@ -224,13 +223,7 @@ ADUC_Result FSUpdateHandlerImpl::Apply()
  */
 ADUC_Result FSUpdateHandlerImpl::Cancel()
 {
-    if (_isApply)
-    {
-        // swupdate handler can only cancel apply.
-        // all other cancels are no-ops.
-        return CancelApply(_logFolder.c_str());
-    }
-
+    Log_Info("Cancel called - no-op for fsupdate");
     return ADUC_Result{ ADUC_CancelResult_Success };
 }
 
@@ -333,26 +326,6 @@ ADUC_Result FSUpdateHandlerImpl::IsInstalled(const std::string& installedCriteri
  */
 static ADUC_Result CancelApply(const char* logFolder)
 {
-    // Execute the install command with  "-r" to reverts the apply by
-    // telling the bootloader to boot into the current partition
-
-    // This is equivalent to : command << c_installScript << " -l " << logFolder << " -r"
-
-    std::string command = adushconst::adu_shell;
-    std::vector<std::string> args{ adushconst::update_type_opt,       adushconst::update_type_microsoft_swupdate,
-                                   adushconst::update_action_opt,     adushconst::update_action_apply,
-                                   adushconst::target_log_folder_opt, logFolder };
-
-    std::string output;
-
-    const int exitCode = ADUC_LaunchChildProcess(command, args, output);
-    if (exitCode != 0)
-    {
-        // If failed to cancel apply, apply should return SuccessRebootRequired.
-        Log_Error("Failed to cancel Apply, extendedResultCode = %d", exitCode);
-        return ADUC_Result{ ADUC_CancelResult_Failure, exitCode };
-    }
-
-    Log_Info("Apply was cancelled");
+    Log_Info("CancelApply called - no-op for fsupdate");
     return ADUC_Result{ ADUC_ApplyResult_Cancelled };
 }

@@ -14,6 +14,7 @@
 #include <string>
 #include <unistd.h> // sync()
 #include <vector>
+#include <sys/reboot.h> // reboot()
 
 EXTERN_C_BEGIN
 
@@ -71,22 +72,7 @@ int ADUC_RebootSystem()
 
     // Commit buffer cache to disk.
     sync();
-
-    std::string output;
-    std::vector<std::string> args{ "--update-type", "common", "--update-action", "reboot" };
-    const int exitStatus = ADUC_LaunchChildProcess("/usr/lib/adu/adu-shell", args, output);
-
-    if (exitStatus != 0)
-    {
-        Log_Error("Reboot failed.");
-    }
-
-    if (!output.empty())
-    {
-        Log_Info(output.c_str());
-    }
-
-    return exitStatus;
+    return reboot(RB_AUTOBOOT);
 }
 
 /**
