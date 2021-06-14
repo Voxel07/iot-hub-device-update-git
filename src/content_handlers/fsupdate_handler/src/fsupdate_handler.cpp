@@ -200,14 +200,6 @@ ADUC_Result FSUpdateHandlerImpl::Apply()
         return ADUC_Result{ ADUC_ApplyResult_Failure, exitCode };
     }
 
-    /**
-     * Update adu-version file in /etc/
-    */  
-    // if (!FSUpdateHandlerImpl::UpdateVersionFile("1.0"_,"/etc/adu-version")) 
-    // {
-    //     return ADUC_Result{ ADUC_ApplyResult_Failure };
-    // }
-
     return ADUC_Result{ ADUC_ApplyResult_Success };
  
 }

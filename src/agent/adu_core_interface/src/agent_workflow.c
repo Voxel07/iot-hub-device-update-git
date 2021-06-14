@@ -530,6 +530,8 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
 
             ADUC_Workflow_HandleUpdateAction(workflowData);
             Log_Info("---TMP---HandlUpdateAction Finished");
+            //After successfull Apply Action we have to modify the adu-version
+            ADUC_Result updateVersion = ADUC_MethodCall_UpdateVersionFile(workflowData->ContentData->InstalledCriteria);
             ADUC_SetInstalledUpdateIdAndGoToIdle(workflowData, workflowData->ContentData->ExpectedUpdateId);
             goto done;
         }
