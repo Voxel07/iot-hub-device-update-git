@@ -264,7 +264,7 @@ std::string FSUpdateHandlerImpl::ReadValueFromFile(const std::string& filePath)
 
 ADUC_Result FSUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion){
    
-    Log_Info("Updating version file from %s to %s",FSUpdateHandlerImpl::ReadValueFromFile(ADUC_VERSION_FILE),newVersion.c_str());
+    Log_Info("Updating version file from '%s' to '%s'",FSUpdateHandlerImpl::ReadValueFromFile(ADUC_VERSION_FILE).c_str(),newVersion.c_str());
 
     std::ofstream ofs;
     ofs.open(ADUC_VERSION_FILE, std::ofstream::trunc);
