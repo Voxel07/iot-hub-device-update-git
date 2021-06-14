@@ -321,8 +321,8 @@ _Bool ADUC_ParseUpdateType(const char* updateType, char** updateTypeName, char**
         goto done;
     }
 
-    type = malloc(typeLength + 1);
-    if (name == NULL)
+    type = malloc(typeLength); // \0 has space because type length includes ":" which will be skipped
+    if (type == NULL)
     {
         goto done;
     }
@@ -330,9 +330,9 @@ _Bool ADUC_ParseUpdateType(const char* updateType, char** updateTypeName, char**
     memcpy(name, updateType, nameLength);
     name[nameLength] = '\0';
 
-    updateType++; //skippes the :
-    memcpy(updateTypeVersion, updateType, typeLength);
-    updateTypeVersion[typeLength] = '\0';
+    delimiter++; //skippes the :
+    memcpy(type, delimiter, typeLength);
+    type[typeLength] = '\0';
 
     succeeded = true;
 
@@ -340,6 +340,7 @@ done:
     if (succeeded)
     {
         *updateTypeName = name;
+        *updateTypeVersion = type;
     }
     else
     {
