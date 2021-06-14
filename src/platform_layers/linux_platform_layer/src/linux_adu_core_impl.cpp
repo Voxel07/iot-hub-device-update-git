@@ -106,7 +106,7 @@ ADUC_Result LinuxPlatformLayer::Prepare(const char* workflowId, const ADUC_Prepa
     if (result.ResultCode == ADUC_PrepareResult_Failure)
     {
         Log_Error(
-            "Metadata validation failed, Version %u, File Count %u",
+            "Metadata validation failed, Version '%s', File Count %u",
             prepareInfo->updateTypeVersion,
             prepareInfo->fileCount);
     }

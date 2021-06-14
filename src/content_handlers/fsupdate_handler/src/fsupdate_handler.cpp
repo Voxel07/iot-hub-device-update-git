@@ -58,9 +58,9 @@ std::unique_ptr<ContentHandler> FSUpdateHandlerImpl::CreateContentHandler(
  */
 ADUC_Result FSUpdateHandlerImpl::Prepare(const ADUC_PrepareInfo* prepareInfo)
 {
-    if (prepareInfo->updateTypeVersion != "application" && prepareInfo->updateTypeVersion != "firmware")
+    if (prepareInfo->updateTypeVersion != _applicationFile && prepareInfo->updateTypeVersion != _firmwareFile)
     {
-        Log_Error("FsUpdate packages prepare failed. Wrong Handler Version %s. Select 'application' or 'firmware' ", prepareInfo->updateTypeVersion);
+        Log_Error("FsUpdate packages prepare failed. Wrong Handler Version '%s'. Select 'application' or 'firmware' ", prepareInfo->updateTypeVersion);
         return ADUC_Result{ ADUC_PrepareResult_Failure,
                             ADUC_ERC_SWUPDATE_HANDLER_PACKAGE_PREPARE_FAILURE_WRONG_VERSION };
     }
