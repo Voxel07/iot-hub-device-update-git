@@ -58,7 +58,7 @@ std::unique_ptr<ContentHandler> FSUpdateHandlerImpl::CreateContentHandler(
  */
 ADUC_Result FSUpdateHandlerImpl::Prepare(const ADUC_PrepareInfo* prepareInfo)
 {
-    if (prepareInfo->updateTypeVersion != 1 || prepareInfo->updateTypeVersion != 2)
+    if (prepareInfo->updateTypeVersion != 1 && prepareInfo->updateTypeVersion != 2)
     {
         Log_Error("FsUpdate packages prepare failed. Wrong Handler Version %d. Set '1' for ff and '2' for af", prepareInfo->updateTypeVersion);
         return ADUC_Result{ ADUC_PrepareResult_Failure,
