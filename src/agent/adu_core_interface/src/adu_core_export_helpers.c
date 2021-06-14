@@ -1104,7 +1104,7 @@ void ADUC_MethodCall_Apply_Complete(ADUC_MethodCall_Data* methodCallData, ADUC_R
     else if (result.ResultCode == ADUC_ApplyResult_Success)
     {
         //After successfull Apply Action we have to modify the adu-version
-        ADUC_Result updateVersion = ADUC_MethodCall_UpdateVersionFile(methodCallData->WorkflowData->ContentData->InstalledCriteria);
+        ADUC_MethodCall_UpdateVersionFile(methodCallData->WorkflowData);
         // An Apply action completed successfully. Continue to the next step.
         methodCallData->WorkflowData->OperationInProgress = false;
     }
