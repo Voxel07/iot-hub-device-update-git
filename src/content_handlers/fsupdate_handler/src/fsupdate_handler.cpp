@@ -144,10 +144,10 @@ ADUC_Result FSUpdateHandlerImpl::Install()
     std::string command = _pathToFsUpdate;
     std::vector<std::string> args{ };
    
-    if( _fileType.c_str() == "af"){
+    if( _fileType.c_str() == _applicationFile){
         args.emplace_back(_installApplicationFile);
     }
-    else if(_fileType.c_str() == "ff"){
+    else if(_fileType.c_str() == _firmwareFile){
         args.emplace_back(_installFirmwareFile);
     }
     else{

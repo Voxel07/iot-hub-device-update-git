@@ -62,7 +62,7 @@ private:
 
     const std::string _pathToFsUpdate = "/usr/bin/FS-Update";
     const std::string _installFirmwareFile = "-ff";
-    const std::string _firmwareFile = "-firmware";
+    const std::string _firmwareFile = "firmware";
     const std::string _installApplicationFile = "-af";
     const std::string _applicationFile = "application";
     const std::string _commitUpdate = "-cu";
