@@ -85,7 +85,7 @@ void LinuxPlatformLayer::Idle(const char* workflowId)
 ADUC_Result LinuxPlatformLayer::Prepare(const char* workflowId, const ADUC_PrepareInfo* prepareInfo)
 {
     Log_Info(
-        "{%s} Received Metadata, UpdateType: %s, UpdateTypeName: %s, UpdateTypeVersion: %u, FileCount: %u",
+        "{%s} Received Metadata, UpdateType: %s, UpdateTypeName: %s, UpdateTypeVersion: %s, FileCount: %u",
         workflowId,
         prepareInfo->updateType,
         prepareInfo->updateTypeName,

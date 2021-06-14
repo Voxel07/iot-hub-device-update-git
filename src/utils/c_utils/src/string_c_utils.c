@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <aduc/logging.h>
 /**
  * @brief Maximum length for the output string of ADUC_StringFormat()
  */
@@ -281,10 +282,11 @@ _Bool atoui(const char* str, unsigned int* ui)
  */
 _Bool ADUC_ParseUpdateType(const char* updateType, char** updateTypeName, char* updateTypeVersion)
 {
+    Log_Info("ADUC_ParseUpdateType");
     _Bool succeeded = false;
     char* name = NULL;
     *updateTypeName = NULL;
-    *updateTypeVersion = 0;
+    // *updateTypeVersion = 0;
 
     if (updateType == NULL)
     {
