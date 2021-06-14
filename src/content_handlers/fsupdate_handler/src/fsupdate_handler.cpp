@@ -42,7 +42,7 @@ static ADUC_Result CancelApply(const char* logFolder);
  *
  * @param workFolder The folder where content will be downloaded.
  * @param logFolder The folder where operational logs can be placed.
- * @param filename The .swu image file to be installed by swupdate.
+ * @param filename The .fsu image file to be installed by fsupdate.
  * @return std::unique_ptr<ContentHandler> SimulatorHandlerImpl object as a ContentHandler.
  */
 std::unique_ptr<ContentHandler> FSUpdateHandlerImpl::CreateContentHandler(
@@ -58,9 +58,9 @@ std::unique_ptr<ContentHandler> FSUpdateHandlerImpl::CreateContentHandler(
  */
 ADUC_Result FSUpdateHandlerImpl::Prepare(const ADUC_PrepareInfo* prepareInfo)
 {
-    if (prepareInfo->updateTypeVersion != 1 && prepareInfo->updateTypeVersion != 2)
+    if (prepareInfo->updateTypeVersion != "application" && prepareInfo->updateTypeVersion != "firmware")
     {
-        Log_Error("FsUpdate packages prepare failed. Wrong Handler Version %d. Set '1' for ff and '2' for af", prepareInfo->updateTypeVersion);
+        Log_Error("FsUpdate packages prepare failed. Wrong Handler Version %s. Select 'application' or 'firmware' ", prepareInfo->updateTypeVersion);
         return ADUC_Result{ ADUC_PrepareResult_Failure,
                             ADUC_ERC_SWUPDATE_HANDLER_PACKAGE_PREPARE_FAILURE_WRONG_VERSION };
     }
@@ -77,8 +77,8 @@ ADUC_Result FSUpdateHandlerImpl::Prepare(const ADUC_PrepareInfo* prepareInfo)
 }
 
 /**
- * @brief Download implementation for swupdate (no-op)
- * swupdate does not need to download additional content.
+ * @brief Download implementation for fsupdate (no-op)
+ * fsupdate does not need to download additional content.
  * This method is a no-op.
  *
  * @return ADUC_Result The result of the download (always success)
@@ -91,8 +91,8 @@ ADUC_Result FSUpdateHandlerImpl::Download()
 }
 
 /**
- * @brief Install implementation for swupdate.
- * Calls into the swupdate wrapper script to install an image file.
+ * @brief Install implementation for fsupdate.
+ * Calls into the fsupdate wrapper script to install an image file.
  *
  * @return ADUC_Result The result of the install.
  */
@@ -205,10 +205,10 @@ ADUC_Result FSUpdateHandlerImpl::Apply()
 }
 
 /**
- * @brief Cancel implementation for swupdate.
- * We don't have many hooks into swupdate to cancel an ongoing install.
+ * @brief Cancel implementation for fsupdate.
+ * We don't have many hooks into fsupdate to cancel an ongoing install.
  * We can cancel apply by reverting the bootloader flag to boot into the original partition.
- * Calls into the swupdate wrapper script to cancel apply.
+ * Calls into the fsupdate wrapper script to cancel apply.
  * Cancel after or during any other operation is a no-op.
  *
  * @return ADUC_Result The result of the cancel.

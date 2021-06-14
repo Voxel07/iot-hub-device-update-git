@@ -279,7 +279,7 @@ _Bool atoui(const char* str, unsigned int* ui)
  * @param[out] updateTypeName - Caller must call free()
  * @param[out] updateTypeVersion
  */
-_Bool ADUC_ParseUpdateType(const char* updateType, char** updateTypeName, unsigned int* updateTypeVersion)
+_Bool ADUC_ParseUpdateType(const char* updateType, char** updateTypeName, char* updateTypeVersion)
 {
     _Bool succeeded = false;
     char* name = NULL;
@@ -317,11 +317,11 @@ _Bool ADUC_ParseUpdateType(const char* updateType, char** updateTypeName, unsign
     name[nameLength] = '\0';
 
     // convert version string to unsigned int
-    if (!atoui(delimiter + 1, updateTypeVersion))
-    {
-        // conversion failed
-        goto done;
-    }
+    // if (!atoui(delimiter + 1, updateTypeVersion))
+    // {
+    //     // conversion failed
+    //     goto done;
+    // }
 
     succeeded = true;
 
