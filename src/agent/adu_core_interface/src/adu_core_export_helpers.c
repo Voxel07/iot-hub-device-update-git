@@ -1065,6 +1065,8 @@ void ADUC_MethodCall_Apply_Complete(ADUC_MethodCall_Data* methodCallData, ADUC_R
     Log_Info("---TMP---ADUC_MethodCall_Apply_Complete");
     ADUC_ApplyInfo* info = methodCallData->MethodSpecificData.ApplyInfo;
 
+    //After successfull Apply Action we have to modify the adu-version
+    ADUC_Result updateVersion = ADUC_MethodCall_UpdateVersionFile(methodCallData->WorkflowData->ContentData->InstalledCriteria);
     ADUC_ApplyInfo_UnInit(info);
     methodCallData->MethodSpecificData.ApplyInfo = NULL;
 
