@@ -139,16 +139,16 @@ ADUC_Result FSUpdateHandlerImpl::Install()
         Log_Warn("Specified filename %s does not match actual filename %s.", _filename.c_str(), filename);
     }
 
-    Log_Info("Installing image file: '%s' type: '%s'", filename, _fileType);
+    Log_Info("Installing image file: '%s' type: '%s'", filename, _fileType.c_str());
 
 
     std::string command = _pathToFsUpdate;
     std::vector<std::string> args{ };
    
-    if( _fileType == _applicationFile){
+    if( _fileType.c_str() == _applicationFile.c_str()){
         args.emplace_back(_installApplicationFile);
     }
-    else if(_fileType == _firmwareFile){
+    else if(_fileType.c_str() == _firmwareFile.c_str()){
         args.emplace_back(_installFirmwareFile);
     }
     else{
