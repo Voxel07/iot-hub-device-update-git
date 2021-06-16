@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <string>
+#include <iostream>
 
 class ContentHandler;
 
@@ -31,6 +32,7 @@ public:
         _workFolder(workFolder),
         _logFolder(logFolder), _filename(filename), _fileHash(fileHash)
     {
+        std::cout << "---TMP---4 Parameter" <<std::endl;
     }
 
     /**
@@ -47,6 +49,7 @@ public:
         _workFolder(workFolder),
         _logFolder(logFolder), _filename(filename), _fileHash(fileHash), _fileType(fileType)
     {
+        std::cout << "---TMP---5 Parameter" <<std::endl;
     }
 
     const std::string& WorkFolder() const

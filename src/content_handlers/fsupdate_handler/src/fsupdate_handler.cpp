@@ -29,6 +29,8 @@
 std::unique_ptr<ContentHandler> fus_fsupdate_CreateFunc(const ContentHandlerCreateData& data)
 {
     Log_Info("fsupdate_handler_create-called.");
+    Log_Info("---TMP---Parameter: workfolder: '%s' | LogFolder: '%s' | Filename: '%s' | FileType: '%s'"
+        ,data.WorkFolder().c_str(), data.LogFolder().c_str(), data.Filename().c_str(), data.FileType().c_str());
     return std::unique_ptr<ContentHandler>{ FSUpdateHandlerImpl::CreateContentHandler(
         data.WorkFolder(), data.LogFolder(), data.Filename(), data.FileType()) };
 }
@@ -150,6 +152,10 @@ ADUC_Result FSUpdateHandlerImpl::Install()
     }
     else if(_fileType.c_str() == _firmwareFile.c_str()){
         args.emplace_back(_installFirmwareFile);
+    }
+    else if (_fileType.empty()){
+        Log_Error("No Update Type provided");
+        return ADUC_Result{ ADUC_InstallResult_Failure }; 
     }
     else{
         Log_Error("Invaliede Update Type");
