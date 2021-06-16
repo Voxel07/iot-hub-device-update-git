@@ -9,6 +9,7 @@
 #include <aduc/hash_utils.h>
 #include <aduc/string_utils.hpp>
 #include <aduc/system_utils.h>
+#include <aduc/string_c_utils.h>
 
 #include <cstring>
 #include <sys/stat.h>
@@ -265,9 +266,13 @@ ADUC_Result LinuxPlatformLayer::Download(const char* workflowId, const char* upd
     {
         // We create the content handler as part of the Download phase since this is the start of the rollout workflow
         // and we need to call into the content handler for any additional downloads it may need.
+        char *typeName[12]; // fus/fsupdate
+        char *typeVersion[11]; // application or firmware
+        ADUC_ParseUpdateType(updateType,typeName,typeVersion);
+        
         Log_Info("---TMP---Creating ContentHandler here ? + updateType '%s'",updateType);
         _contentHandler = ContentHandlerFactory::Create(
-            updateType, { info->WorkFolder, ADUC_LOG_FOLDER, entity.TargetFilename, entity.FileId});
+            updateType, { info->WorkFolder, ADUC_LOG_FOLDER, entity.TargetFilename, entity.FileId , *typeVersion});
 
         const ADUC_Result contentHandlerResult{ _contentHandler->Download() };
         resultCode = contentHandlerResult.ResultCode;

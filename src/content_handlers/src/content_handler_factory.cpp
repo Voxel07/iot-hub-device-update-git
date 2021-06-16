@@ -14,6 +14,7 @@
 #include <aduc/string_utils.hpp>
 #include <cstring>
 #include <vector>
+#include <iostream>
 
 /**
  * @brief Creates a ContentHandler
@@ -26,6 +27,7 @@
 std::unique_ptr<ContentHandler>
 ContentHandlerFactory::Create(const char* updateType, const ContentHandlerCreateData& data)
 {
+    std::cout << "---TMP---Create in content_handler_factory" <<std::endl;
     const std::string updateTypeStr(updateType);
     const std::vector<std::string> typeInfo = ADUC::StringUtils::Split(updateTypeStr, ':');
     if (typeInfo.size() == 2)
