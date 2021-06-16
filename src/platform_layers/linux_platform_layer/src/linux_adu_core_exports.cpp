@@ -72,7 +72,22 @@ int ADUC_RebootSystem()
 
     // Commit buffer cache to disk.
     sync();
-    return reboot(RB_AUTOBOOT);
+    
+    std::string output;
+    std::vector<std::string> args{ "--reboot", "--no-wall" };
+    const int exitStatus = ADUC_LaunchChildProcess("/sbin/reboot", args, output);
+
+    if (exitStatus != 0)
+    {
+        Log_Error("Reboot failed.");
+    }
+
+    if (!output.empty())
+    {
+        Log_Info(output.c_str());
+    }
+
+    return exitStatus;
 }
 
 /**
