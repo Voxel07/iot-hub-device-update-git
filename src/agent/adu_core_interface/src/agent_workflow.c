@@ -764,19 +764,20 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
     /**
      * Only used when not Starting with Download Action.
      * wokflowData->StartupIdleCallSent = true skippes the IsInstalled call
+     * TODO: Why is it used every time ? No problem for Apply, but breaks Install.
     */
-    else if (entry->Action == ADUCITF_UpdateAction_Install && workflowData->StartupIdleCallSent == true)
-    {
-        // Generate workflowId when we start downloading.
-        GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
-        Log_Info("Start the workflow - Installing, with WorkflowId %s", workflowData->WorkflowId);
+    // else if (entry->Action == ADUCITF_UpdateAction_Install && workflowData->StartupIdleCallSent == true)
+    // {
+    //     // Generate workflowId when we start Installing.
+    //     GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+    //     Log_Info("Start the workflow - Installing, with WorkflowId %s", workflowData->WorkflowId);
 
-        result = ADUC_MethodCall_Prepare(workflowData);
-        shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
-    }
+    //     result = ADUC_MethodCall_Prepare(workflowData);
+    //     shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
+    // }
     else if (entry->Action == ADUCITF_UpdateAction_Apply && workflowData->StartupIdleCallSent == true)
     {
-        // Generate workflowId when we start downloading.
+        // Generate workflowId when we start Applying.
         GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
         Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
 
