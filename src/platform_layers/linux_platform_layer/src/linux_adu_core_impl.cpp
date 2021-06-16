@@ -265,8 +265,9 @@ ADUC_Result LinuxPlatformLayer::Download(const char* workflowId, const char* upd
     {
         // We create the content handler as part of the Download phase since this is the start of the rollout workflow
         // and we need to call into the content handler for any additional downloads it may need.
+        Log_Info("---TMP---Creating ContentHandler here ? + updateType '%s'",updateType);
         _contentHandler = ContentHandlerFactory::Create(
-            updateType, { info->WorkFolder, ADUC_LOG_FOLDER, entity.TargetFilename, entity.FileId });
+            updateType, { info->WorkFolder, ADUC_LOG_FOLDER, entity.TargetFilename, entity.FileId});
 
         const ADUC_Result contentHandlerResult{ _contentHandler->Download() };
         resultCode = contentHandlerResult.ResultCode;
