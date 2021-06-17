@@ -477,10 +477,10 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
 
             // There's a pending download request.
             // We need to make sure we don't change our state to 'idle'.
-            // workflowData->StartupIdleCallSent = true;
+            workflowData->StartupIdleCallSent = true;
 
-            // ADUC_Workflow_HandleUpdateAction(workflowData);
-            // goto done;
+            ADUC_Workflow_HandleUpdateAction(workflowData);
+            goto done;
         }
 
         if(desiredAction == ADUCITF_UpdateAction_Install){
@@ -519,8 +519,8 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
              * This is normaly done during the download action. 
              * Because we are starting with apply we have to generate one here.
             */
-            GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
-            Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
+            // GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+            // Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
 
             workflowData->LastReportedState = ADUCITF_State_InstallSucceeded;
 
@@ -754,6 +754,8 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
 
     if (entry->Action == ADUCITF_UpdateAction_Download)
     {
+        Log_Debug("---TMP---Only used during startup workflow ? -Download ");
+
         // Generate workflowId when we start downloading.
         GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
         Log_Info("Start the workflow - downloading, with WorkflowId %s", workflowData->WorkflowId);
@@ -766,23 +768,26 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
      * wokflowData->StartupIdleCallSent = true skippes the IsInstalled call
      * TODO: Why is it used every time ? No problem for Apply, but breaks Install.
     */
-    // else if (entry->Action == ADUCITF_UpdateAction_Install && workflowData->StartupIdleCallSent == true)
-    // {
-    //     // Generate workflowId when we start Installing.
-    //     GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
-    //     Log_Info("Start the workflow - Installing, with WorkflowId %s", workflowData->WorkflowId);
+    else if (entry->Action == ADUCITF_UpdateAction_Install && workflowData->StartupIdleCallSent == true)
+    {
+        Log_Debug("---TMP---Only used during startup workflow ? -Install ");
 
-    //     result = ADUC_MethodCall_Prepare(workflowData);
-    //     shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
-    // }
+        // Generate workflowId when we start Installing.
+        GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+        Log_Info("Start the workflow - Installing, with WorkflowId %s", workflowData->WorkflowId);
+        shouldCallOperationFunc = true;
+        // result = ADUC_MethodCall_Prepare(workflowData);
+        // shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
+    }
     else if (entry->Action == ADUCITF_UpdateAction_Apply && workflowData->StartupIdleCallSent == true)
     {
+        Log_Debug("---TMP---Only used during startup workflow ? -Apply ");
         // Generate workflowId when we start Applying.
         GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
         Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
-
-        result = ADUC_MethodCall_Prepare(workflowData);
-        shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
+        shouldCallOperationFunc = true;
+        // result = ADUC_MethodCall_Prepare(workflowData);
+        // shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
     }
 
     if (shouldCallOperationFunc)

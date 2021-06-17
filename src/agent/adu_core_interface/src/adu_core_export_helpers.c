@@ -811,7 +811,7 @@ ADUC_Result ADUC_MethodCall_Prepare(const ADUC_WorkflowData* workflowData)
 
     if (!ADUC_PrepareInfo_Init(&info, workflowData))
     {
-        Log_Error("ADUC_PrepareInfo_Init failed");
+        Log_Error("---TMP---ADUC_PrepareInfo_Init failed");
         result.ResultCode = ADUC_PrepareResult_Failure;
         result.ExtendedResultCode = ADUC_ERC_NOTRECOVERABLE;
         goto done;
