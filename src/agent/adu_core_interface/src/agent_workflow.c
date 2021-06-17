@@ -512,18 +512,16 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
 
         if (desiredAction == ADUCITF_UpdateAction_Apply)
         {
-            Log_Info("---TMP---There's a pending 'Apply' action request.");
+            Log_Info("---TMP---There's a pending 'Apply' action request. --hallo");
 
             /** 
              * Generate workflowId when we start a workflow.
              * This is normaly done during the download action. 
              * Because we are starting with apply we have to generate one here.
             */
-            // GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
-            // Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
 
             workflowData->LastReportedState = ADUCITF_State_InstallSucceeded;
-            workflowData->CurrentAction = ADUCITF_State_ApplyStarted;
+            // workflowData->CurrentAction = ADUCITF_State_ApplyStarted;
 
             // There's a pending Apply request.
             // We need to make sure we don't change our state to 'idle'.
