@@ -523,6 +523,7 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
             // Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
 
             workflowData->LastReportedState = ADUCITF_State_InstallSucceeded;
+            workflowData->CurrentAction = ADUCITF_State_ApplyStarted;
 
             // There's a pending Apply request.
             // We need to make sure we don't change our state to 'idle'.
@@ -754,7 +755,7 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
 
     if (entry->Action == ADUCITF_UpdateAction_Download)
     {
-        Log_Debug("---TMP---Only used during startup workflow ? -Download ");
+        Log_Info("---TMP---Only used during startup workflow ? -Download ");
 
         // Generate workflowId when we start downloading.
         GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
@@ -770,7 +771,7 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
     */
     else if (entry->Action == ADUCITF_UpdateAction_Install && workflowData->StartupIdleCallSent == true)
     {
-        Log_Debug("---TMP---Only used during startup workflow ? -Install ");
+        Log_Info("---TMP---Only used during startup workflow ? -Install ");
 
         // Generate workflowId when we start Installing.
         GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
@@ -781,7 +782,7 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
     }
     else if (entry->Action == ADUCITF_UpdateAction_Apply && workflowData->StartupIdleCallSent == true)
     {
-        Log_Debug("---TMP---Only used during startup workflow ? -Apply ");
+        Log_Info("---TMP---Only used during startup workflow ? -Apply ");
         // Generate workflowId when we start Applying.
         GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
         Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
