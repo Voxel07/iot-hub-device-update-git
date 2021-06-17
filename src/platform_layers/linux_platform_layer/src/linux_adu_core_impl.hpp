@@ -283,6 +283,7 @@ private:
     static ADUC_Result
     PrepareCallback(ADUC_Token token, const char* workflowId, const ADUC_PrepareInfo* prepareInfo) noexcept
     {
+        Log_Info("PrepareCallback called");
         return ADUC::ExceptionUtils::CallResultMethodAndHandleExceptions(
             ADUC_PrepareResult_Failure, [&token, &workflowId, &prepareInfo]() -> ADUC_Result {
                 return static_cast<LinuxPlatformLayer*>(token)->Prepare(workflowId, prepareInfo);
