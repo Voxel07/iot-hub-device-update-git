@@ -719,7 +719,12 @@ _Bool ADUC_Json_GetFiles(const JSON_Value* updateActionJson, unsigned int* fileC
         Log_Error("Invalid json Files count");
         goto done;
     }
-
+    /**
+     * This part can only be done during download Phase, 
+     * because after download success is send the fielurls entry is deleted
+     * from the Device twin.
+     * How to detect phase ??
+    */
     const JSON_Object* updateActionJsonObject = json_value_get_object(updateActionJson);
     const JSON_Object* file_url_object = json_object_get_object(updateActionJsonObject, ADUCITF_FIELDNAME_FILE_URLS);
     const size_t file_url_count = json_object_get_count(file_url_object);
@@ -735,6 +740,10 @@ _Bool ADUC_Json_GetFiles(const JSON_Value* updateActionJson, unsigned int* fileC
         Log_Error("Json Files count does not match Files URL count");
         goto done;
     }
+    /**
+     * End of part
+    */
+
 
     *files = calloc(files_count, sizeof(ADUC_FileEntity));
     if (*files == NULL)

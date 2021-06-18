@@ -489,6 +489,13 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
             // There's a pending Install request.
             // We need to make sure we don't change our state to 'idle'.
             // workflowData->StartupIdleCallSent = true;
+
+            /**
+             * We need to check if the agent resatartet or the whole board because the update file is stored in RAM
+             * If board rebbot -> restart download
+             * if agent restart -> validate file in Ram and start install
+             * -    We need to call Handleconstructor bevor Installing. This is normals done during the download action.
+            */
             
             /** 
              * Generate workflowId when we start a workflow.
@@ -498,24 +505,23 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
             // workflowData->LastReportedState = ADUCITF_State_DownloadSucceeded;
 
             // GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
-            // Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
+            // Log_Info("Start the workflow - Install, with WorkflowId %s", workflowData->WorkflowId);
             // ADUC_Workflow_HandleUpdateAction(workflowData);
             // goto done;
         }
 
         if (desiredAction == ADUCITF_UpdateAction_Apply)
         {
-            Log_Info("---TMP---There's a pending 'Apply' action request.");
+            Log_Info("---TMP---There's a pending-- 'Apply' action request.");
 
             /** 
              * Generate workflowId when we start a workflow.
              * This is normaly done during the download action. 
              * Because we are starting with apply we have to generate one here.
             */
-            GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
-            Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
 
             workflowData->LastReportedState = ADUCITF_State_InstallSucceeded;
+            // workflowData->CurrentAction = ADUCITF_State_ApplyStarted;
 
             // There's a pending Apply request.
             // We need to make sure we don't change our state to 'idle'.
@@ -620,7 +626,6 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
     {
         goto done;
     }
-    Log_Info("---TMP---desiredAction: %d",desiredAction);
 
     //
     // Special case: Cancel is handled here.
@@ -754,6 +759,18 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
 
         result = ADUC_MethodCall_Prepare(workflowData);
         shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
+    }
+
+    else if (entry->Action == ADUCITF_UpdateAction_Apply )
+    {
+        // Generate workflowId when we start applying.
+        GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+        Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
+        
+        shouldCallOperationFunc = true;
+        // No need to prepare anything ?
+        // result = ADUC_MethodCall_Prepare(workflowData);
+        // shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
     }
 
     if (shouldCallOperationFunc)

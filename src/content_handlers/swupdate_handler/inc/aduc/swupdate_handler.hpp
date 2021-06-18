@@ -40,10 +40,12 @@ public:
     ADUC_Result Prepare(const ADUC_PrepareInfo* prepareInfo) override;
     ADUC_Result Download() override;
     ADUC_Result Install(/*const std::string& updateType*/) override;
-    ADUC_Result Apply(const char* workflowId) override;
+    ADUC_Result Apply() override;
     ADUC_Result Cancel() override;
     ADUC_Result IsInstalled(const std::string& installedCriteria) override;
-    static bool UpdateVersionFile(const std::string& newVersion ,const std::string& filePath);
+    ADUC_Result UpdateVersionFile(const std::string& newVersion) override{
+        return ADUC_Result{ ADUC_UpdateVersionFileResult_Updated };
+    }
     static std::string ReadValueFromFile(const std::string& filePath);
 
 protected:

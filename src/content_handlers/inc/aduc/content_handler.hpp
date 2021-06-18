@@ -29,10 +29,11 @@ public:
 
     virtual ADUC_Result Prepare(const ADUC_PrepareInfo* prepareInfo) = 0;
     virtual ADUC_Result Download() = 0;
-    virtual ADUC_Result Install(/*const std::string& updateType*/) = 0;
-    virtual ADUC_Result Apply(const char* workflowId) = 0;
+    virtual ADUC_Result Install() = 0;
+    virtual ADUC_Result Apply() = 0;
     virtual ADUC_Result Cancel() = 0;
     virtual ADUC_Result IsInstalled(const std::string& installedCriteria) = 0;
+    virtual ADUC_Result UpdateVersionFile(const std::string& installedCriteria) = 0;
 
 protected:
     ContentHandler() = default;

@@ -14,6 +14,7 @@
 #include <string>
 #include <unistd.h> // sync()
 #include <vector>
+#include <sys/reboot.h> // reboot()
 
 EXTERN_C_BEGIN
 
@@ -71,10 +72,21 @@ int ADUC_RebootSystem()
 
     // Commit buffer cache to disk.
     sync();
+    
+    std::string output; 
+    std::vector<std::string> args{ "--reboot", "--no-wall" };
+    
+    // Run as 'root'.
+    // Note: this requires the file owner to be 'root'.
+    int defaultUserId = getuid();
+    int effectiveUserId = geteuid();
 
-    std::string output;
-    std::vector<std::string> args{ "--update-type", "common", "--update-action", "reboot" };
-    const int exitStatus = ADUC_LaunchChildProcess("/usr/lib/adu/adu-shell", args, output);
+    int exitStatus;
+    if (setuid(effectiveUserId) == 0)
+    {
+        Log_Info("Reboot called as(%d). Running it as(%d)", defaultUserId, effectiveUserId);
+        exitStatus = ADUC_LaunchChildProcess("/sbin/reboot", args, output);
+    }
 
     if (exitStatus != 0)
     {

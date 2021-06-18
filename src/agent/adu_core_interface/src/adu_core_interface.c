@@ -394,7 +394,6 @@ void AzureDeviceUpdateCoreInterface_ReportStateAndResultAsync(ADUCITF_State upda
 
     if(updateState == ADUCITF_State_InstallSucceeded){
         Log_Info("---TMP---Reboot start");
-        // wait(2000);
         ADUC_MethodCall_RebootSystem();
     }
 

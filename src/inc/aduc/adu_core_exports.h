@@ -99,7 +99,7 @@ typedef struct tagADUC_PrepareInfo
 {
     char* updateType; /**< Handler UpdateType. */
     char* updateTypeName; /**< Provider/Name in the UpdateType string. */
-    unsigned int updateTypeVersion; /**< Version number in the UpdateType string. */
+    char* updateTypeVersion; /**< Version number in the UpdateType string. */
     unsigned int fileCount; /**< Number of files in #Files list. */
     ADUC_FileEntity* files; /**< Array of #ADUC_FileEntity objects describing what to download. */
 } ADUC_PrepareInfo;
@@ -295,6 +295,11 @@ typedef enum tagADUC_IsInstalledResult
     ADUC_IsInstalledResult_NotInstalled = 2, /**< Succeeded and content is not installed */
 } ADUC_IsInstalledResult;
 
+typedef enum tagADUC_UpdateVersionFileResult
+{
+    ADUC_UpdateVersionFileResult_Failure = 0, /**< General failure. */
+    ADUC_UpdateVersionFileResult_Updated = 1, /**< Succeeded and file was Updated. */
+} ADUC_UpdateVersionFileResult;
 /**
  * @brief Checks if the given content is installed.
  *
@@ -304,6 +309,9 @@ typedef enum tagADUC_IsInstalledResult
  * @return ADUC_Result True if the content is installed.
  */
 typedef ADUC_Result (*IsInstalledCallbackFunc)(
+    ADUC_Token token, const char* workflowId, const char* updateType, const char* installedCriteria);
+
+typedef ADUC_Result (*UpdateVersionFileCallbackFunc)(
     ADUC_Token token, const char* workflowId, const char* updateType, const char* installedCriteria);
 
 //
@@ -383,6 +391,7 @@ typedef struct tagADUC_RegisterData
     CancelCallbackFunc CancelCallback; /**< Cancel message handler. */
 
     IsInstalledCallbackFunc IsInstalledCallback; /**< IsInstalled function pointer */
+    UpdateVersionFileCallbackFunc UpdateVersionFileCallback; /**< UpdateVersionFile function pointer */
 
     SandboxCreateCallbackFunc SandboxCreateCallback; /**< Sandbox creation message handler. */
     SandboxDestroyCallbackFunc SandboxDestroyCallback; /**< Sandbox destruction message handler. */

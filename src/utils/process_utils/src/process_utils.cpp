@@ -56,7 +56,10 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         }
     }
     else{
-        Log_Info("Calling adu-shell");
+        Log_Info("Starting Child Process");
+        for (int i = 0; i < args.size(); i++){
+            Log_Info("Arg %d = %s", i, args[i].c_str());
+        }
     }
     const int pid = fork();
 
