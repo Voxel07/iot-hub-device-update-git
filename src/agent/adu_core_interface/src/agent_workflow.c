@@ -512,7 +512,7 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
 
         if (desiredAction == ADUCITF_UpdateAction_Apply)
         {
-            Log_Info("---TMP---There's a pending 'Apply' action request. --hallo");
+            Log_Info("---TMP---There's a pending--tst 'Apply' action request. --hallo");
 
             /** 
              * Generate workflowId when we start a workflow.
