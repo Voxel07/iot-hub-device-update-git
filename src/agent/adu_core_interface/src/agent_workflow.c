@@ -512,7 +512,7 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
 
         if (desiredAction == ADUCITF_UpdateAction_Apply)
         {
-            Log_Info("---TMP---There's a pending--tst 'Apply' action request. --hallo");
+            Log_Info("---TMP---There's a pending-- 'Apply' action request.");
 
             /** 
              * Generate workflowId when we start a workflow.
@@ -765,16 +765,16 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
     /**
      * Only used when not Starting with Download Action.
      * wokflowData->StartupIdleCallSent = true skippes the IsInstalled call
-     * TODO: Why is it used every time ? No problem for Apply, but breaks Install.
+     * TODO: 
     */
     else if (entry->Action == ADUCITF_UpdateAction_Install && workflowData->StartupIdleCallSent == true)
     {
         Log_Info("---TMP---Only used during startup workflow ? -Install ");
 
         // Generate workflowId when we start Installing.
-        GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
-        Log_Info("Start the workflow - Installing, with WorkflowId %s", workflowData->WorkflowId);
-        shouldCallOperationFunc = true;
+        // GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+        // Log_Info("Start the workflow - Installing, with WorkflowId %s", workflowData->WorkflowId);
+        // shouldCallOperationFunc = true;
         // result = ADUC_MethodCall_Prepare(workflowData);
         // shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
     }
@@ -784,9 +784,9 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
         // Generate workflowId when we start Applying.
         GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
         Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
-        shouldCallOperationFunc = true;
-        // result = ADUC_MethodCall_Prepare(workflowData);
-        // shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
+        // shouldCallOperationFunc = true;
+        result = ADUC_MethodCall_Prepare(workflowData);
+        shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
     }
 
     if (shouldCallOperationFunc)

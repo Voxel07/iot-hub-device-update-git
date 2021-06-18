@@ -809,13 +809,21 @@ ADUC_Result ADUC_MethodCall_Prepare(const ADUC_WorkflowData* workflowData)
     ADUC_Result result = { ADUC_PrepareResult_Failure };
     ADUC_PrepareInfo info = {};
 
-    if (!ADUC_PrepareInfo_Init(&info, workflowData))
-    {
-        Log_Error("---TMP---ADUC_PrepareInfo_Init failed");
-        result.ResultCode = ADUC_PrepareResult_Failure;
-        result.ExtendedResultCode = ADUC_ERC_NOTRECOVERABLE;
-        goto done;
+    /**
+     * Only check File name and Count when in Download Phase
+     * Because fileUrls entry is removed from DeviceTwin after successful download.
+     * So this will fail
+    */
+
+    if(workflowData->CurrentAction == ADUCITF_UpdateAction_Download){
+        if (!ADUC_PrepareInfo_Init(&info, workflowData))
+            {
+                result.ResultCode = ADUC_PrepareResult_Failure;
+                result.ExtendedResultCode = ADUC_ERC_NOTRECOVERABLE;
+                goto done;
+            }
     }
+    
 
     // split updateType string to get updateType name and version
     if (!ADUC_ParseUpdateType(info.updateType, &(info.updateTypeName), &(info.updateTypeVersion)))
