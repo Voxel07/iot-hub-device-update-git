@@ -48,7 +48,17 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         Log_Error("Cannot create output and error pipes. %s (errno %d).", strerror(errno), errno);
         return ret;
     }
-    // if(command == adushconst::path_to_fs_update){
+    // Run as 'root'.
+    // Note: this requires the file owner to be 'root'.
+    int defaultUserId = getuid();
+    int effectiveUserId = geteuid();
+
+    if (setuid(effectiveUserId) != 0)
+    {
+        Log_Error("setuid failed: uid(%d), defaultUid(%d), effectiveUid(%d)", getuid(), defaultUserId, effectiveUserId);
+        return 7;
+    }
+
     if(command == "/usr/bin/FS-Update"){
         Log_Info("Starting FS-Updater");
         for (int i = 0; i < args.size(); i++){
