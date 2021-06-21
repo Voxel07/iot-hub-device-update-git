@@ -93,6 +93,9 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         }
         argv.emplace_back(nullptr);
 
+        //
+        fflush(NULL);
+
         // The exec() functions only return if an error has occurred.
         // The return value is -1, and errno is set to indicate the error.
         int ret = execvp(command.c_str(), &argv[0]);
