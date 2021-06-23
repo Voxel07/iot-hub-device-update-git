@@ -78,11 +78,11 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         // Running inside child process.
 
         // Redirect stdout and stderr to WRITE_END
-        dup2(filedes[WRITE_END], STDOUT_FILENO);
-        dup2(filedes[WRITE_END], STDERR_FILENO);
+        // dup2(filedes[WRITE_END], STDOUT_FILENO);
+        // dup2(filedes[WRITE_END], STDERR_FILENO);
 
-        close(filedes[READ_END]);
-        close(filedes[WRITE_END]);
+        // close(filedes[READ_END]);
+        // close(filedes[WRITE_END]);
 
         std::vector<char*> argv;
         argv.reserve(args.size() + 2);
@@ -92,9 +92,6 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
             argv.emplace_back(const_cast<char*>(arg.c_str()));
         }
         argv.emplace_back(nullptr);
-
-        //
-        fflush(NULL);
 
         // The exec() functions only return if an error has occurred.
         // The return value is -1, and errno is set to indicate the error.

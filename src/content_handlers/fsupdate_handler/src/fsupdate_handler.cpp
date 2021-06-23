@@ -201,7 +201,7 @@ ADUC_Result FSUpdateHandlerImpl::Apply()
 
     const int exitCode = ADUC_LaunchChildProcess(command, args, output);
 
-    if (exitCode != 1)
+    if (exitCode != 0)
     {
         Log_Error("Apply failed, extendedResultCode = %d", exitCode);
         return ADUC_Result{ ADUC_ApplyResult_Failure, exitCode };
