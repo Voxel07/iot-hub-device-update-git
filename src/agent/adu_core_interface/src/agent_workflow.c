@@ -484,8 +484,19 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
         }
 
         if(desiredAction == ADUCITF_UpdateAction_Install){
-             Log_Info("---TMP---There's a pending 'install' action request.");
 
+            Log_Info("---TMP---There's a pending 'install' action request.");
+            
+            /**
+             * For now we do not process this action on startup.
+             * So we simply send a fail state and go back to idel
+            */
+
+            GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+            ADUC_Result result = { .ResultCode = ADUC_InstallResult_Failure,
+                               .ExtendedResultCode = ADUC_ERC_LOWERLEVEL_INVALID_UPDATE_ACTION };
+            ADUC_SetUpdateStateWithResult(workflowData, ADUCITF_State_Failed,result);
+            
             // There's a pending Install request.
             // We need to make sure we don't change our state to 'idle'.
             // workflowData->StartupIdleCallSent = true;
