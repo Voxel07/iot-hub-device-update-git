@@ -160,6 +160,11 @@ set (
     "/etc/adu-version"
     CACHE STRING "Path to the file that contains version info for the image or device.")
 
+set (
+    APP_VERSION_FILE
+    "/etc/app_version"
+    CACHE STRING "Path to the file that contains version info for the data partition or app")
+
 # By default ADU Agent daemon runs as root.
 # root user home directory should be /root.
 set (
