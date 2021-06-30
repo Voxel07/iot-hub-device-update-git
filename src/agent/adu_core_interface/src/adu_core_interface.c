@@ -199,11 +199,7 @@ done:
 
 void AzureDeviceUpdateCoreInterface_Connected(void* componentContext)
 {
-    Log_Info("---TMP---Connected ? All DT Data here ?");
     ADUC_WorkflowData* workflowData = (ADUC_WorkflowData*)componentContext;
-    Log_Info("---TMP---LastReportedState : %d", workflowData->LastReportedState);
-    Log_Info("---TMP---SystemRebootState : %d", workflowData->SystemRebootState);
-    Log_Info("---TMP---AgentRebootState : %d", workflowData->AgentRestartState);
     ADUC_Workflow_HandleStartupWorkflowData(workflowData);
 
     if (!ReportStartupMsg())
@@ -215,10 +211,6 @@ void AzureDeviceUpdateCoreInterface_Connected(void* componentContext)
 void AzureDeviceUpdateCoreInterface_DoWork(void* componentContext)
 {
     ADUC_WorkflowData* workflowData = (ADUC_WorkflowData*)componentContext;
-    Log_Info("---TMP---AzureDeviceUpdateCoreInterface_DoWork");
-    Log_Info("---TMP---LastReportedState : %d", workflowData->LastReportedState);
-    Log_Info("---TMP---SystemRebootState : %d", workflowData->SystemRebootState);
-    Log_Info("---TMP---AgentRebootState : %d", workflowData->AgentRestartState);
     ADUC_WorkflowData_DoWork(workflowData);
 }
 
@@ -238,10 +230,6 @@ void OrchestratorUpdateCallback(
     ADUC_ClientHandle clientHandle, JSON_Value* propertyValue, int propertyVersion, void* context)
 {
     ADUC_WorkflowData* workflowData = (ADUC_WorkflowData*)context;
-    Log_Info("---TMP---OrchestratorUpdateCallback");
-    Log_Info("---TMP---LastReportedState : %d", workflowData->LastReportedState);
-    Log_Info("---TMP---SystemRebootState : %d", workflowData->SystemRebootState);
-    Log_Info("---TMP---AgentRebootState : %d", workflowData->AgentRestartState);
     STRING_HANDLE jsonToSend = NULL;
 
     // Reads out the json string so we can Log Out what we've got.
