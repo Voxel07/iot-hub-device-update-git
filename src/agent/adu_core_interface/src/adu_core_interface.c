@@ -199,7 +199,11 @@ done:
 
 void AzureDeviceUpdateCoreInterface_Connected(void* componentContext)
 {
+    Log_Info("---TMP---Connected ? All DT Data here ?");
     ADUC_WorkflowData* workflowData = (ADUC_WorkflowData*)componentContext;
+    Log_Info("---TMP---LastReportedState : %d", workflowData->LastReportedState);
+    Log_Info("---TMP---SystemRebootState : %d", workflowData->SystemRebootState);
+    Log_Info("---TMP---AgentRebootState : %d", workflowData->AgentRestartState);
     ADUC_Workflow_HandleStartupWorkflowData(workflowData);
 
     if (!ReportStartupMsg())

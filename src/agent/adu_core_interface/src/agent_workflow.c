@@ -523,6 +523,7 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
 
         if (desiredAction == ADUCITF_UpdateAction_Apply)
         {
+            Log_info("Last Reported State: '%s'",workflowData->LastReportedState);
             Log_Info("---TMP---There's a pending-- 'Apply' action request.");
 
             /** 
