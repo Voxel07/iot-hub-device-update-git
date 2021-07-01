@@ -383,7 +383,13 @@ LinuxPlatformLayer::IsInstalled(const char* workflowId, const char* updateType, 
     {
         try
         {
-            _contentHandler = ContentHandlerFactory::Create(updateType, ContentHandlerCreateData{});
+            char *typeName[12]; // fus/fsupdate
+            char *typeVersion[11]; // application or firmware
+            ADUC_ParseUpdateType(updateType,typeName,typeVersion);
+
+             _contentHandler = ContentHandlerFactory::Create(updateType, {*typeVersion});
+           
+            // _contentHandler = ContentHandlerFactory::Create(updateType, ContentHandlerCreateData{});
         }
         catch (const ADUC::Exception& e)
         {

@@ -16,12 +16,6 @@
 
 #include <dirent.h>
 
-#ifndef ADUC_VERSION_FILE
-#define ADUC_VERSION_FILE "etc/adu-version"
-#endif
-
-
-
 /**
  * @brief handler creation function
  * This function calls  CreateContentHandler from handler factory 
@@ -297,8 +291,22 @@ ADUC_Result FSUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion
  */
 ADUC_Result FSUpdateHandlerImpl::IsInstalled(const std::string& installedCriteria)
 {
+    
     Log_Info("---TMP---IsInstalled call reading from File");
-    std::string version{ ReadValueFromFile(ADUC_VERSION_FILE) };
+
+    std::string version;
+
+    if(_fileType == _firmwareFile){
+        version = ReadValueFromFile(ADUC_VERSION_FILE);
+    }
+    else if(_fileType == _applicationFile){
+        version = ReadValueFromFile(APP_VERSION_FILE);
+    }
+    else{
+        Log_Error("Faield to read Version file. Invaliede filetype '%s'",_fileType.c_str());
+        return ADUC_Result{ ADUC_UpdateVersionFileResult_Failure };
+    }
+    
     if (version.empty())
     {
         Log_Error("Version file %s did not contain a version or could not be read.", ADUC_VERSION_FILE);
