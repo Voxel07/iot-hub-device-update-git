@@ -48,16 +48,6 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         Log_Error("Cannot create output and error pipes. %s (errno %d).", strerror(errno), errno);
         return ret;
     }
-    // Run as 'root'.
-    // Note: this requires the file owner to be 'root'.
-    int defaultUserId = getuid();
-    int effectiveUserId = geteuid();
-
-    if (setuid(effectiveUserId) != 0)
-    {
-        Log_Error("setuid failed: uid(%d), defaultUid(%d), effectiveUid(%d)", getuid(), defaultUserId, effectiveUserId);
-        return 7;
-    }
 
     if(command == "/usr/bin/FS-Update"){
         Log_Info("Starting FS-Updater");
@@ -76,13 +66,19 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
     if (pid == 0)
     {
         // Running inside child process.
-
-        // Redirect stdout and stderr to WRITE_END
-        // dup2(filedes[WRITE_END], STDOUT_FILENO);
-        // dup2(filedes[WRITE_END], STDERR_FILENO);
-
-        // close(filedes[READ_END]);
-        // close(filedes[WRITE_END]);
+        /**
+            * Run child process as 'root'.
+            * fw_setenv and fw_printenv are only accessible to root
+            * This is done in the cild process so we don't mess up the
+            * permissions for logging,conf and do-agent 
+        */
+        int defaultUserId = getuid();
+        int effectiveUserId = geteuid();
+        if (setuid(effectiveUserId) != 0)
+        {
+            Log_Error("setuid failed: uid(%d), defaultUid(%d), effectiveUid(%d)", getuid(), defaultUserId, effectiveUserId);
+            return 7;
+        }
 
         std::vector<char*> argv;
         argv.reserve(args.size() + 2);
