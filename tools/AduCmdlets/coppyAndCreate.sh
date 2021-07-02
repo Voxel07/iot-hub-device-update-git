@@ -6,6 +6,8 @@ deploydir=/home/developer/gitLocal/yocto-fus/build-fsimx8mm-fus-imx-wayland/tmp/
 tausch=/mnt/fs-temp/Schneider/tausch
 echo "Kopiere squashfs"
 cp $deploydir/fus-image-update-std-fsimx8mm.nand.squashfs /tftpboot/r.fs
+echo "Kopiere ubifs"
+cp $deploydir/fus-image-update-std-fsimx8mm.data-partition-nand.ubifs /tftpboot/d.fs
 echo "Kopiere update"
 cp $deploydir/rauc_update_nand.artifact $tausch
 echo "Erstelle manifest"

@@ -23,6 +23,10 @@
 #include <do_download.h>
 #include <do_exceptions.h>
 
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+
 namespace MSDO = microsoft::deliveryoptimization;
 
 using ADUC::LinuxPlatformLayer;
@@ -465,16 +469,22 @@ ADUC_Result LinuxPlatformLayer::SandboxCreate(const char* workflowId, char** wor
     std::stringstream folderName;
     folderName << tempPath << "/aduc-dl-" << workflowId;
 
-    // Try to delete existing directory.
+    // Try to delete existing directory. 
     int dir_result;
-    struct stat sb;
-    if (stat(folderName.str().c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))
+    std::string tmp;
+    
+    //Find's all folders in /tmp
+    for(auto &p : std::filesystem::directory_iterator(tempPath))
     {
-        dir_result = ADUC_SystemUtils_RmDirRecursive(folderName.str().c_str());
-        if (dir_result != 0)
-        {
-            // Not critical if failed.
-            Log_Info("Unable to remove folder %s, error %d", folderName.str().c_str(), dir_result);
+        tmp = p.path();
+        //delete all sandbox folders 
+        if(tmp.std::string::find("/aduc-dl-") != std::string::npos){
+            dir_result = ADUC_SystemUtils_RmDirRecursive(tmp.c_str());
+            if (dir_result != 0)
+            {
+                // Not critical if failed.
+                Log_Info("Unable to remove folder %s, error %d", tmp.c_str(), dir_result);
+            }
         }
     }
 
