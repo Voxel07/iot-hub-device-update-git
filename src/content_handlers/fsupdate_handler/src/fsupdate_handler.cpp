@@ -265,13 +265,26 @@ std::string FSUpdateHandlerImpl::ReadValueFromFile(const std::string& filePath)
 
 ADUC_Result FSUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion){
    
-    Log_Info("Updating version file from '%s' to '%s'",FSUpdateHandlerImpl::ReadValueFromFile(ADUC_VERSION_FILE).c_str(),newVersion.c_str());
-
     std::ofstream ofs;
-    ofs.open(ADUC_VERSION_FILE, std::ofstream::trunc);
+
+    if(_fileType == _firmwareFile){
+    Log_Info("Updating adu-version file from '%s' to '%s'",FSUpdateHandlerImpl::ReadValueFromFile(ADUC_VERSION_FILE).c_str(),newVersion.c_str());
+
+        ofs.open(ADUC_VERSION_FILE, std::ofstream::trunc);
+    }
+    else if(_fileType == _applicationFile){
+    Log_Info("Updating app-version file from '%s' to '%s'",FSUpdateHandlerImpl::ReadValueFromFile(APP_VERSION_FILE).c_str(),newVersion.c_str());
+
+        ofs.open(APP_VERSION_FILE, std::ofstream::trunc);
+    }
+    else{
+        Log_Error("Faield to read Version file. Invaliede filetype '%s'",_fileType.c_str());
+        return ADUC_Result{ ADUC_UpdateVersionFileResult_Failure };
+    }
+
     if(!ofs.is_open())
     {
-        Log_Error("File %s failed to open, error: %d", ADUC_VERSION_FILE, errno);
+        Log_Error("File failed to open version-file, error: %d", errno);
     }
 
     ofs << newVersion;

@@ -15,7 +15,7 @@
 #include <unistd.h> // sync()
 #include <vector>
 #include <sys/reboot.h> // reboot()
-
+#include <time.h>
 EXTERN_C_BEGIN
 
 /**
@@ -62,6 +62,29 @@ void ADUC_Unregister(ADUC_Token token)
 }
 
 /**
+ * @brief Give the user time to abbort reboot
+ */
+
+void delay (void){
+    long akt_zeit;
+    long end_zeit;
+
+    int delayTime = 5;
+
+    while(delayTime != 0 ){
+        Log_Info("Time till reboot %d \n", delayTime);
+        time(&end_zeit);
+        end_zeit += 1;
+        do{
+            time(&akt_zeit);
+        }while (akt_zeit < end_zeit);
+        {
+            delayTime--;
+        }
+    }
+}
+
+/**
  * @brief Reboot the system.
  * 
  * @returns int errno, 0 if success.
@@ -85,6 +108,7 @@ int ADUC_RebootSystem()
     if (setuid(effectiveUserId) == 0)
     {
         Log_Info("Reboot called as(%d). Running it as(%d)", defaultUserId, effectiveUserId);
+        delay();
         exitStatus = ADUC_LaunchChildProcess("/sbin/reboot", args, output);
     }
 
