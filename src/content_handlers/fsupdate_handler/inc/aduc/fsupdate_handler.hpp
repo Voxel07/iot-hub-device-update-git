@@ -1,6 +1,6 @@
 /**
- * @file swupdate_handler.hpp
- * @brief Defines SWUpdateHandlerImpl.
+ * @file fsupdate_handler.hpp
+ * @brief Defines fsUpdateHandlerImpl.
  *
  * @copyright Copyright (c) 2019, Microsoft Corp.
  */
@@ -20,8 +20,8 @@
 std::unique_ptr<ContentHandler> fus_fsupdate_CreateFunc(const ContentHandlerCreateData& data);
 
 /**
- * @class SWUpdateHandlerImpl
- * @brief The swupdate specific implementation of ContentHandler interface.
+ * @class fsUpdateHandlerImpl
+ * @brief The fsupdate specific implementation of ContentHandler interface.
  */
 class FSUpdateHandlerImpl : public ContentHandler
 {
@@ -70,4 +70,4 @@ private:
     const std::string _debugMode = "--debug";
 };
 
-#endif // ADUC_SWUPDATE_HANDLER_HPP
+#endif // ADUC_FSUPDATE_HANDLER_HPP
