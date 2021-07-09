@@ -108,7 +108,7 @@ set (
 )
 set (
     ADUC_CONTENT_HANDLERS
-    "microsoft/swupdate"
+    "fus/fsupdate"
     CACHE STRING "The list of content handlers.")
 
 #
@@ -118,12 +118,12 @@ set (
 
 set (
     ADUC_DEVICEINFO_MANUFACTURER
-    "Contoso"
+    "fus"
     CACHE STRING "Manufacturer of the device.")
 
 set (
     ADUC_DEVICEINFO_MODEL
-    "Virtual Machine"
+    "IMX8MM"
     CACHE STRING "Name of the device.")
 
 #
