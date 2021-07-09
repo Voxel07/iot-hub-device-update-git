@@ -72,7 +72,7 @@ void delay (void){
     int delayTime = 5;
 
     while(delayTime != 0 ){
-        Log_Info("Time till reboot %d \n", delayTime);
+        Log_Info("Time till reboot %d", delayTime);
         time(&end_zeit);
         end_zeit += 1;
         do{
