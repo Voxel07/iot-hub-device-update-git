@@ -28,12 +28,12 @@
 /**
  * @brief Runs specified command in a new process and captures output, error messages, and exit code.
  *        The captured output and error messages will be written to ADUC_LOG_FILE.
- * 
- * @param comman Name of a command to run. If command doesn't contain '/', this function will 
+ *
+ * @param comman Name of a command to run. If command doesn't contain '/', this function will
  *               search for the specified command in PATH.
  * @param args List of arguments for the command.
  * @param output A standard output from the command.
- *  
+ *
  * @return An exit code from the command.
  */
 int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string> args, std::string& output)
@@ -43,24 +43,32 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
 
     int filedes[2];
     const int ret = pipe(filedes);
+
     if (ret != 0)
     {
         Log_Error("Cannot create output and error pipes. %s (errno %d).", strerror(errno), errno);
         return ret;
     }
 
-    if(command == "/usr/bin/FS-Update"){
+    if (command == "/usr/bin/FS-Update")
+    {
         Log_Info("Starting FS-Updater");
-        for (int i = 0; i < args.size(); i++){
+
+        for (int i = 0; i < args.size(); i++)
+        {
             Log_Info("Arg %d = %s", i, args[i].c_str());
         }
     }
-    else{
+    else
+    {
         Log_Info("Starting Child Process");
-        for (int i = 0; i < args.size(); i++){
+
+        for (int i = 0; i < args.size(); i++)
+        {
             Log_Info("Arg %d = %s", i, args[i].c_str());
         }
     }
+
     const int pid = fork();
 
     if (pid == 0)
@@ -70,10 +78,11 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
             * Run child process as 'root'.
             * fw_setenv and fw_printenv are only accessible to root
             * This is done in the cild process so we don't mess up the
-            * permissions for logging,conf and do-agent 
+            * permissions for logging,conf and do-agent
         */
         int defaultUserId = getuid();
         int effectiveUserId = geteuid();
+
         if (setuid(effectiveUserId) != 0)
         {
             Log_Error("setuid failed: uid(%d), defaultUid(%d), effectiveUid(%d)", getuid(), defaultUserId, effectiveUserId);
@@ -83,10 +92,12 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         std::vector<char*> argv;
         argv.reserve(args.size() + 2);
         argv.emplace_back(const_cast<char*>(command.c_str()));
+
         for (const std::string& arg : args)
         {
             argv.emplace_back(const_cast<char*>(arg.c_str()));
         }
+
         argv.emplace_back(nullptr);
 
         // The exec() functions only return if an error has occurred.
