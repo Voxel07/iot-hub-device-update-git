@@ -63,6 +63,7 @@ void ADUC_Unregister(ADUC_Token token)
 
 /**
  * @brief Give the user time to abbort reboot
+ * Not in use at the moment
  */
 
 void delay (void){
@@ -86,7 +87,7 @@ void delay (void){
 
 /**
  * @brief Reboot the system.
- * 
+ *
  * @returns int errno, 0 if success.
  */
 int ADUC_RebootSystem()
@@ -95,22 +96,11 @@ int ADUC_RebootSystem()
 
     // Commit buffer cache to disk.
     sync();
-    
-    std::string output; 
-    std::vector<std::string> args{ "--reboot", "--no-wall" };
-    
-    // Run as 'root'.
-    // Note: this requires the file owner to be 'root'.
-    int defaultUserId = getuid();
-    int effectiveUserId = geteuid();
 
-    int exitStatus;
-    if (setuid(effectiveUserId) == 0)
-    {
-        Log_Info("Reboot called as(%d). Running it as(%d)", defaultUserId, effectiveUserId);
-        delay();
-        exitStatus = ADUC_LaunchChildProcess("/sbin/reboot", args, output);
-    }
+    std::string output;
+    std::vector<std::string> args{ "--reboot", "--no-wall" };
+
+    int exitStatus = ADUC_LaunchChildProcess("/sbin/reboot", args, output);
 
     if (exitStatus != 0)
     {
@@ -127,7 +117,7 @@ int ADUC_RebootSystem()
 
 /**
  * @brief Restart the ADU Agent.
- * 
+ *
  * @returns int errno, 0 if success.
  */
 int ADUC_RestartAgent()
