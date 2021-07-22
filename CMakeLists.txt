@@ -156,8 +156,8 @@ set (
     CACHE STRING "The platform layer to use. Options: simulator linux")
 
 set (
-    ADUC_VERSION_FILE
-    "/etc/adu-version"
+    FIRMWARE_VERSION_FILE
+    "/etc/fw_version"
     CACHE STRING "Path to the file that contains version info for the image or device.")
 
 set (
@@ -188,8 +188,8 @@ set (
     CACHE STRING "Location where ADU Agent will write logs.")
 
 set (
-    ADUC_VERSION_FILE
-    "/etc/adu-version"
+    FIRMWARE_VERSION_FILE
+    "/etc/fw_version"
     CACHE STRING "Path to the file that contains version info for the image or device.")
 
 set (
