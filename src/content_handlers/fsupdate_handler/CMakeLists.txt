@@ -21,7 +21,7 @@ target_link_libraries (
             aduc::string_utils
             aduc::system_utils
             aduc::exception_utils)
-target_compile_definitions (${target_name}  PRIVATE ADUC_VERSION_FILE="${ADUC_VERSION_FILE}"
+target_compile_definitions (${target_name}  PRIVATE FIRMWARE_VERSION_FILE="${FIRMWARE_VERSION_FILE}"
                                             PRIVATE APP_VERSION_FILE="${APP_VERSION_FILE}"
                                             ADUC_LOG_FOLDER="${ADUC_LOG_FOLDER}")
 
