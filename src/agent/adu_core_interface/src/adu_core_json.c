@@ -524,7 +524,9 @@ JSON_Value* ADUC_JSON_GetUpdateManifestRoot(const JSON_Value* updateActionJson)
         return false;
     }
 
-    return json_parse_string(manifestString);
+    JSON_Value* updateManifestRoot = json_parse_string(manifestString);
+    free(manifestString);
+    return updateManifestRoot;
 }
 
 /**
@@ -720,7 +722,7 @@ _Bool ADUC_Json_GetFiles(const JSON_Value* updateActionJson, unsigned int* fileC
         goto done;
     }
     /**
-     * This part can only be done during download Phase, 
+     * This part can only be done during download Phase,
      * because after download success is send the fielurls entry is deleted
      * from the Device twin.
      * How to detect phase ??
