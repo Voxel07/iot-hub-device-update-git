@@ -85,7 +85,8 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
 
         if (setuid(effectiveUserId) != 0)
         {
-            Log_Error("setuid failed: uid(%d), defaultUid(%d), effectiveUid(%d)", getuid(), defaultUserId, effectiveUserId);
+            Log_Error(
+                "setuid failed: uid(%d), defaultUid(%d), effectiveUid(%d)", getuid(), defaultUserId, effectiveUserId);
             return 7;
         }
 
@@ -106,7 +107,7 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
 
         fprintf(stderr, "execvp failed, ret %d, error %d\n", ret, errno);
 
-        return ret;
+        _exit(ret);
     }
 
     close(filedes[WRITE_END]);
