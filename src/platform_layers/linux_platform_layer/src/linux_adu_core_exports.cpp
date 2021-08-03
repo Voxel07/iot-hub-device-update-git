@@ -12,10 +12,10 @@
 #include <memory>
 #include <signal.h> // raise()
 #include <string>
-#include <unistd.h> // sync()
-#include <vector>
 #include <sys/reboot.h> // reboot()
 #include <time.h>
+#include <unistd.h> // sync()
+#include <vector>
 EXTERN_C_BEGIN
 
 /**
@@ -66,19 +66,22 @@ void ADUC_Unregister(ADUC_Token token)
  * Not in use at the moment
  */
 
-void delay (void){
+void delay(void)
+{
     long akt_zeit;
     long end_zeit;
 
-    int delayTime = 5;
+    int delayTime = 3;
 
-    while(delayTime != 0 ){
+    while (delayTime != 0)
+    {
         Log_Info("Time till reboot %d", delayTime);
         time(&end_zeit);
         end_zeit += 1;
-        do{
+        do
+        {
             time(&akt_zeit);
-        }while (akt_zeit < end_zeit);
+        } while (akt_zeit < end_zeit);
         {
             delayTime--;
         }
@@ -99,7 +102,7 @@ int ADUC_RebootSystem()
 
     std::string output;
     std::vector<std::string> args{ "--reboot", "--no-wall" };
-
+    delay();
     int exitStatus = ADUC_LaunchChildProcess("/sbin/reboot", args, output);
 
     if (exitStatus != 0)
