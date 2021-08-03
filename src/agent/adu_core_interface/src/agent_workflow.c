@@ -439,103 +439,42 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
     //
     // In this case, we will update the 'InstalledContentId' to match 'ExpectedContentId'
     // and transition to Idle state.
+
     ADUC_Result isInstalledResult = ADUC_MethodCall_IsInstalled(workflowData);
-    if (isInstalledResult.ResultCode == ADUC_IsInstalledResult_Installed)
+    ADUC_Result getUrsResult = ADUC_MethodCall_GetUpdateRebootState(workflowData);
+
+    unsigned int desiredAction;
+    if (!ADUC_Json_GetUpdateAction(workflowData->UpdateActionJson, &desiredAction))
     {
-        Log_Info(
-            "IsInstalled call was true - setting installedUpdateId to %s:%s:%s and setting state to Idle",
-            workflowData->ContentData->ExpectedUpdateId->Provider,
-            workflowData->ContentData->ExpectedUpdateId->Name,
-            workflowData->ContentData->ExpectedUpdateId->Version);
-        ADUC_SetInstalledUpdateIdAndGoToIdle(workflowData, workflowData->ContentData->ExpectedUpdateId);
         goto done;
     }
 
-    if (IsAducResultCodeFailure(isInstalledResult.ResultCode))
+    if (isInstalledResult.ResultCode == ADUC_IsInstalledResult_NotInstalled)
     {
-        Log_Warn(
-            "IsInstalled call failed. ExtendedResultCode: %d - setting state to Idle",
-            isInstalledResult.ExtendedResultCode);
-    }
-    else
-    {
-        Log_Info("The installed criteria is not met. The current update was not installed on the device.");
-
-        unsigned int desiredAction;
-        if (!ADUC_Json_GetUpdateAction(workflowData->UpdateActionJson, &desiredAction))
+        if (desiredAction != ADUCITF_UpdateAction_Download)
         {
-            goto done;
-        }
-
-        /**
-         * This allowes the Agent to start the download when an Update was deployed while the Agent wasn't running
-         * Without that the Agent would just go to Idle mode.
-        */
-        if (desiredAction == ADUCITF_UpdateAction_Download)
-        {
-            Log_Info("There's a pending 'download' action request.");
-
-            // There's a pending download request.
-            // We need to make sure we don't change our state to 'idle'.
-            workflowData->StartupIdleCallSent = true;
-
-            ADUC_Workflow_HandleUpdateAction(workflowData);
-            goto done;
-        }
-
-        if(desiredAction == ADUCITF_UpdateAction_Install){
-
-            Log_Info("---TMP---There's a pending 'install' action request.");
-            
             /**
-             * For now we do not process this action on startup.
-             * So we simply send a fail state and go back to idel
+             * Fail Update
             */
+            Log_Error("Invalid statring action detected %s", ADUCITF_UpdateActionToString(desiredAction));
 
             GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
             ADUC_Result result = { .ResultCode = ADUC_InstallResult_Failure,
-                               .ExtendedResultCode = ADUC_ERC_LOWERLEVEL_INVALID_UPDATE_ACTION };
-            ADUC_SetUpdateStateWithResult(workflowData, ADUCITF_State_Failed,result);
-            
-            // There's a pending Install request.
-            // We need to make sure we don't change our state to 'idle'.
-            // workflowData->StartupIdleCallSent = true;
-
+                                   .ExtendedResultCode = ADUC_ERC_LOWERLEVEL_INVALID_UPDATE_ACTION };
+            ADUC_SetUpdateStateWithResult(workflowData, ADUCITF_State_Failed, result);
             /**
-             * We need to check if the agent resatartet or the whole board because the update file is stored in RAM
-             * If board rebbot -> restart download
-             * if agent restart -> validate file in Ram and start install
-             * -    We need to call Handleconstructor bevor Installing. This is normals done during the download action.
+             * Reset the board state by calling FS-Update -cu
             */
-            
-            /** 
-             * Generate workflowId when we start a workflow.
-             * This is normaly done during the download action. 
-             * Because we are starting with install we have to generate one here.
-            */
-            // workflowData->LastReportedState = ADUCITF_State_DownloadSucceeded;
-
-            // GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
-            // Log_Info("Start the workflow - Install, with WorkflowId %s", workflowData->WorkflowId);
-            // ADUC_Workflow_HandleUpdateAction(workflowData);
-            // goto done;
+            workflowData->CurrentAction = ADUCITF_UpdateAction_Apply;
+            workflowData->LastReportedState = ADUCITF_State_Failed;
+            ADUC_Workflow_HandleUpdateAction(workflowData);
         }
-
-        if (desiredAction == ADUCITF_UpdateAction_Apply)
+        else
         {
-            Log_Info("Last Reported State: '%s'",workflowData->LastReportedState);
-            Log_Info("---TMP---There's a pending-- 'Apply' action request.");
+            //Start download
+            Log_Info("There's a pending 'download' action request.");
 
-            /** 
-             * Generate workflowId when we start a workflow.
-             * This is normaly done during the download action. 
-             * Because we are starting with apply we have to generate one here.
-            */
-
-            workflowData->LastReportedState = ADUCITF_State_InstallSucceeded;
-            // workflowData->CurrentAction = ADUCITF_State_ApplyStarted;
-
-            // There's a pending Apply request.
+            // There's a pending download request.
             // We need to make sure we don't change our state to 'idle'.
             workflowData->StartupIdleCallSent = true;
 
@@ -545,13 +484,58 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
             goto done;
         }
     }
+    else
+    /**
+     * Version was the same
+    */
+    {
+        switch (getUrsResult.ResultCode)
+        {
+        case ADUC_GetUpdateRebootStateResult_NO_UPDATE_REBOOT_PENDING:
+            //Go idle
+            Log_Info(
+                "IsInstalled call was true - setting installedUpdateId to %s:%s:%s and setting state to Idle",
+                workflowData->ContentData->ExpectedUpdateId->Provider,
+                workflowData->ContentData->ExpectedUpdateId->Name,
+                workflowData->ContentData->ExpectedUpdateId->Version);
+            ADUC_SetInstalledUpdateIdAndGoToIdle(workflowData, workflowData->ContentData->ExpectedUpdateId);
+            break;
+        case ADUC_GetUpdateRebootStateResult_INCOMPLETE_APP_UPDATE:
+        case ADUC_UpdateRebootState_INCOMPLETE_FW_UPDATE:
 
-    ADUC_SetUpdateStateWithResult(workflowData, ADUCITF_State_Idle, result);
+            if (desiredAction != ADUCITF_UpdateAction_Apply)
+            {
+                GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+                ADUC_Result result = { .ResultCode = ADUC_InstallResult_Failure,
+                                       .ExtendedResultCode = ADUC_ERC_LOWERLEVEL_INVALID_UPDATE_ACTION };
+                ADUC_SetUpdateStateWithResult(workflowData, ADUCITF_State_Failed, result);
+            }
+            else
+            {
+                //Do apply
+                GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
 
-done:
+                workflowData->LastReportedState = ADUCITF_State_InstallSucceeded;
+                workflowData->CurrentAction = ADUCITF_State_ApplyStarted;
+                workflowData->StartupIdleCallSent = true;
 
-    // Once we set Idle state to the orchestrator we can start receiving update actions.
-    workflowData->StartupIdleCallSent = true;
+                ADUC_Workflow_HandleUpdateAction(workflowData);
+                ADUC_SetInstalledUpdateIdAndGoToIdle(workflowData, workflowData->ContentData->ExpectedUpdateId);
+            }
+            break;
+        default:
+            GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
+            ADUC_Result result = { .ResultCode = ADUC_InstallResult_Failure,
+                                   .ExtendedResultCode = ADUC_ERC_LOWERLEVEL_INVALID_UPDATE_ACTION };
+            ADUC_SetUpdateStateWithResult(workflowData, ADUCITF_State_Failed, result);
+            break;
+        }
+        ADUC_SetUpdateStateWithResult(workflowData, ADUCITF_State_Idle, result);
+
+    done:
+        // Once we set Idle state to the orchestrator we can start receiving update actions.
+        workflowData->StartupIdleCallSent = true;
+    }
 }
 
 /**
@@ -704,8 +688,9 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
      * This prevents that the same Update is installed twice.
      * This chek is only done when trying to Download because thats the first
      * step in the deployment process and there is no way to install it without
-    */
-    if(desiredAction == ADUCITF_UpdateAction_Download){
+     */
+    if (desiredAction == ADUCITF_UpdateAction_Download)
+    {
         Log_Info("---TMP---Download action. Checking version file");
         ADUC_Result isInstalledResult = ADUC_MethodCall_IsInstalled(workflowData);
         if (isInstalledResult.ResultCode == ADUC_IsInstalledResult_Installed)
@@ -719,7 +704,6 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
             goto done;
         }
     }
-    
 
     const ADUC_WorkflowHandlerMapEntry* entry = GetWorkflowHandlerMapEntryForAction(desiredAction);
     if (entry == NULL)
@@ -796,12 +780,12 @@ void ADUC_Workflow_HandleUpdateAction(ADUC_WorkflowData* workflowData)
         shouldCallOperationFunc = IsAducResultCodeSuccess(result.ResultCode);
     }
 
-    else if (entry->Action == ADUCITF_UpdateAction_Apply )
+    else if (entry->Action == ADUCITF_UpdateAction_Apply)
     {
         // Generate workflowId when we start applying.
         GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
         Log_Info("Start the workflow - Apply, with WorkflowId %s", workflowData->WorkflowId);
-        
+
         shouldCallOperationFunc = true;
         // No need to prepare anything ?
         // result = ADUC_MethodCall_Prepare(workflowData);
@@ -869,7 +853,7 @@ static void ADUC_Workflow_WorkCompletionCallback(const void* workCompletionToken
         ADUCITF_UpdateActionToString(entry->Action),
         result.ResultCode,
         result.ExtendedResultCode);
-        
+
     Log_Info("---TMP---Hier Wechsel von workflow zu helper ?");
     entry->OperationCompleteFunc(methodCallData, result);
 
@@ -985,8 +969,7 @@ _Bool IsDuplicateRequest(ADUCITF_UpdateAction action, ADUCITF_State lastReported
 
         break;
     case ADUCITF_UpdateAction_Apply:
-        isDuplicateRequest =
-            (lastReportedState == ADUCITF_State_ApplyStarted);
+        isDuplicateRequest = (lastReportedState == ADUCITF_State_ApplyStarted);
         break;
     case ADUCITF_UpdateAction_Cancel:
         // Cancel is considered a duplicate action when in the Idle state.
