@@ -7,14 +7,13 @@
 #include "aduc/system_utils.h"
 
 #include <algorithm>
+#include <dirent.h>
 #include <fstream>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
-#include <iostream>
-
-#include <dirent.h>
 
 /**
  * @brief handler creation function
@@ -42,7 +41,10 @@ static ADUC_Result CancelApply(const char* logFolder);
  * @return std::unique_ptr<ContentHandler> SimulatorHandlerImpl object as a ContentHandler.
  */
 std::unique_ptr<ContentHandler> FSUpdateHandlerImpl::CreateContentHandler(
-    const std::string& workFolder, const std::string& logFolder, const std::string& filename, const std::string& fileType)
+    const std::string& workFolder,
+    const std::string& logFolder,
+    const std::string& filename,
+    const std::string& fileType)
 {
     return std::unique_ptr<ContentHandler>{ new FSUpdateHandlerImpl(workFolder, logFolder, filename, fileType) };
 }
@@ -56,7 +58,9 @@ ADUC_Result FSUpdateHandlerImpl::Prepare(const ADUC_PrepareInfo* prepareInfo)
 {
     if (prepareInfo->updateTypeVersion != _applicationFile && prepareInfo->updateTypeVersion != _firmwareFile)
     {
-        Log_Error("FsUpdate packages prepare failed. Wrong Handler Version '%s'. Select 'application' or 'firmware' ", prepareInfo->updateTypeVersion);
+        Log_Error(
+            "FsUpdate packages prepare failed. Wrong Handler Version '%s'. Select 'application' or 'firmware' ",
+            prepareInfo->updateTypeVersion);
         return ADUC_Result{ ADUC_PrepareResult_Failure,
                             ADUC_ERC_SWUPDATE_HANDLER_PACKAGE_PREPARE_FAILURE_WRONG_VERSION };
     }
@@ -139,11 +143,10 @@ ADUC_Result FSUpdateHandlerImpl::Install()
 
     Log_Info("Installing image file: '%s' type: '%s'", filename, _fileType.c_str());
 
-
     std::string command = _pathToFsUpdate;
-    std::vector<std::string> args{ };
+    std::vector<std::string> args{};
 
-    if ( _fileType == _applicationFile)
+    if (_fileType == _applicationFile)
     {
         args.emplace_back(_installApplicationFile);
     }
@@ -195,8 +198,7 @@ ADUC_Result FSUpdateHandlerImpl::Apply()
     _isApply = true;
 
     std::string command = _pathToFsUpdate;
-    std::vector<std::string> args{ _commitUpdate, _debugMode};
-
+    std::vector<std::string> args{ _commitUpdate, _debugMode };
     std::string output;
 
     const int exitCode = ADUC_LaunchChildProcess(command, args, output);
@@ -208,7 +210,6 @@ ADUC_Result FSUpdateHandlerImpl::Apply()
     }
 
     return ADUC_Result{ ADUC_ApplyResult_Success };
-
 }
 
 /**
@@ -258,6 +259,7 @@ std::string FSUpdateHandlerImpl::ReadValueFromFile(const std::string& filePath)
 
     std::string result;
     std::getline(file, result);
+
     if (file.bad())
     {
         Log_Error("Unable to read from file %s, error: %d", filePath.c_str(), errno);
@@ -269,36 +271,52 @@ std::string FSUpdateHandlerImpl::ReadValueFromFile(const std::string& filePath)
     return result;
 }
 
-ADUC_Result FSUpdateHandlerImpl::UpdateVersionFile(const std::string& newVersion)
+ADUC_Result FSUpdateHandlerImpl::GetUpdateRebootState()
 {
-    std::ofstream ofs;
+    Log_Info("GetUpdateRebootState");
+    _isApply = false;
 
-    if(_fileType == _firmwareFile)
+    ADUC_Result result;
+
+    std::string command = _pathToFsUpdate;
+    std::vector<std::string> args{ _getRebootState };
+    std::string output;
+
+    const int exitCode = ADUC_LaunchChildProcess(command, args, output);
+
+    switch (exitCode)
     {
-        Log_Info("Updating fw_version file from '%s' to '%s'",FSUpdateHandlerImpl::ReadValueFromFile(FIRMWARE_VERSION_FILE).c_str(),newVersion.c_str());
-        ofs.open(FIRMWARE_VERSION_FILE, std::ofstream::trunc);
-    }
-    else if(_fileType == _applicationFile)
-    {
-        Log_Info("Updating app-version file from '%s' to '%s'",FSUpdateHandlerImpl::ReadValueFromFile(APP_VERSION_FILE).c_str(),newVersion.c_str());
-        ofs.open(APP_VERSION_FILE, std::ofstream::trunc);
-    }
-    else
-    {
-        Log_Error("Faield to read Version file. Invaliede filetype '%s'",_fileType.c_str());
-        return ADUC_Result{ ADUC_UpdateVersionFileResult_Failure };
+    case 0:
+        result = { ADUC_GetUpdateRebootStateResult_NO_UPDATE_REBOOT_PENDING };
+        Log_Info("FS-Update returned NO_UPDATE_REBOOT_PENDING");
+        break;
+    case 1:
+        result = { ADUC_GetUpdateRebootStateResult_FW_UPDATE_REBOOT_FAILED };
+        Log_Info("FS-Update returned FW_UPDATE_REBOOT_FAILED");
+        break;
+    case 2:
+        result = { ADUC_GetUpdateRebootStateResult_INCOMPLETE_FW_UPDATE };
+        Log_Info("FS-Update returned INCOMPLETE_FW_UPDATE");
+        break;
+    case 3:
+        result = { ADUC_GetUpdateRebootStateResult_INCOMPLETE_APP_UPDATE };
+        Log_Info("FS-Update returned INCOMPLETE_APP_UPDATE");
+        break;
+    case 4:
+        result = { ADUC_GetUpdateRebootStateResult_FAILED_FW_UPDATE };
+        Log_Info("FS-Update returned FAILED_FW_UPDATE");
+        break;
+    case 5:
+        result = { ADUC_GetUpdateRebootStateResult_FAILED_APP_UPDATE };
+        Log_Info("FS-Update returned FAILED_APP_UPDATE");
+        break;
+    default:
+        result = { ADUC_GetUpdateRebootStateResult_FAILURE };
+        Log_Info("FS-Update -urs failed");
+        break;
     }
 
-    if(!ofs.is_open())
-    {
-        Log_Error("File failed to open version-file, error: %d", errno);
-    }
-
-    ofs << newVersion;
-
-    ofs.close();
-
-    return ADUC_Result{ ADUC_UpdateVersionFileResult_Updated };
+    return result;
 }
 
 /**
@@ -316,23 +334,23 @@ ADUC_Result FSUpdateHandlerImpl::IsInstalled(const std::string& installedCriteri
 
     std::string version;
 
-    if(_fileType == _firmwareFile)
+    if (_fileType == _firmwareFile)
     {
         version = ReadValueFromFile(FIRMWARE_VERSION_FILE);
     }
-    else if(_fileType == _applicationFile)
+    else if (_fileType == _applicationFile)
     {
         version = ReadValueFromFile(APP_VERSION_FILE);
     }
     else
     {
-        Log_Error("Faield to read Version file. Invaliede filetype '%s'",_fileType.c_str());
-        return ADUC_Result{ ADUC_UpdateVersionFileResult_Failure };
+        Log_Error("Faield to read Version file. Invaliede filetype '%s'", _fileType.c_str());
+        return ADUC_Result{ ADUC_IsInstalledResult_Failure };
     }
 
     if (version.empty())
     {
-        Log_Error("Version file %s did not contain a version or could not be read.", FIRMWARE_VERSION_FILE);
+        Log_Error("Version file %s did not contain a version or could not be read.", _fileType.c_str());
         return ADUC_Result{ ADUC_IsInstalledResult_Failure };
     }
 

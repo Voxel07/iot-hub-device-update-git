@@ -655,7 +655,7 @@ static _Bool ADUC_RegisterData_VerifyData(const ADUC_RegisterData* registerData)
         || registerData->InstallCallback == NULL || registerData->ApplyCallback == NULL
         || registerData->SandboxCreateCallback == NULL || registerData->SandboxDestroyCallback == NULL
         || registerData->PrepareCallback == NULL || registerData->DoWorkCallback == NULL
-        || registerData->IsInstalledCallback == NULL || registerData->UpdateVersionFileCallback == NULL) 
+        || registerData->IsInstalledCallback == NULL || registerData->GetUpdateRebootStateCallback == NULL)
     {
         Log_Error("Invalid ADUC_RegisterData object");
         return false;
@@ -715,7 +715,7 @@ void ADUC_MethodCall_Unregister(const ADUC_RegisterData* registerData)
  * @brief Call into upper layer ADUC_RebootSystem() method.
  *
  * @param workflowData Metadata for call.
- * 
+ *
  * @returns int errno, 0 if success.
  */
 int ADUC_MethodCall_RebootSystem()
@@ -729,7 +729,7 @@ int ADUC_MethodCall_RebootSystem()
  * @brief Call into upper layer ADUC_RestartAgent() method.
  *
  * @param workflowData Metadata for call.
- * 
+ *
  * @returns int errno, 0 if success.
  */
 int ADUC_MethodCall_RestartAgent()
@@ -809,15 +809,12 @@ ADUC_Result ADUC_MethodCall_Prepare(const ADUC_WorkflowData* workflowData)
     ADUC_Result result = { ADUC_PrepareResult_Failure };
     ADUC_PrepareInfo info = {};
 
-
     if (!ADUC_PrepareInfo_Init(&info, workflowData))
     {
         result.ResultCode = ADUC_PrepareResult_Failure;
         result.ExtendedResultCode = ADUC_ERC_NOTRECOVERABLE;
         goto done;
     }
-
-    
 
     // split updateType string to get updateType name and version
     if (!ADUC_ParseUpdateType(info.updateType, &(info.updateTypeName), &(info.updateTypeVersion)))
@@ -1000,6 +997,12 @@ void ADUC_MethodCall_Install_Complete(ADUC_MethodCall_Data* methodCallData, ADUC
 
     ADUC_InstallInfo_UnInit(info);
     methodCallData->MethodSpecificData.InstallInfo = NULL;
+
+    /**
+     * This is added, so that we can us the information in the apply step
+     * to prevent its execution if the reboot failes.
+    */
+    methodCallData->WorkflowData->SystemRebootState = ADUC_SystemRebootState_Required;
 }
 
 /**
@@ -1019,7 +1022,16 @@ ADUC_Result ADUC_MethodCall_Apply(ADUC_MethodCall_Data* methodCallData)
 
     methodCallData->MethodSpecificData.ApplyInfo = NULL;
 
-    if (workflowData->LastReportedState != ADUCITF_State_InstallSucceeded)
+    if (workflowData->SystemRebootState == ADUC_SystemRebootState_Required)
+    {
+        Log_Error("Apply called, but a reboot is required, that could mean, that the system reboot failed ");
+        result.ResultCode = ADUC_ApplyResult_Failure;
+        result.ExtendedResultCode = ADUC_ERC_NOTPERMITTED;
+        goto done;
+    }
+
+    if (workflowData->LastReportedState != ADUCITF_State_InstallSucceeded
+        || workflowData->LastReportedState != ADUCITF_State_Failed)
     {
         Log_Error(
             "Apply UpdateAction called in unexpected state: %s!",
@@ -1068,46 +1080,11 @@ void ADUC_MethodCall_Apply_Complete(ADUC_MethodCall_Data* methodCallData, ADUC_R
     Log_Info("---TMP---ADUC_MethodCall_Apply_Complete");
     ADUC_ApplyInfo* info = methodCallData->MethodSpecificData.ApplyInfo;
 
-    
     ADUC_ApplyInfo_UnInit(info);
     methodCallData->MethodSpecificData.ApplyInfo = NULL;
 
-    if (result.ResultCode == ADUC_ApplyResult_SuccessRebootRequired)
+    if (result.ResultCode == ADUC_ApplyResult_Success)
     {
-        // If apply indicated a reboot required result from apply, go ahead and reboot.
-        Log_Info("Apply indicated success with RebootRequired - rebooting system now");
-        methodCallData->WorkflowData->SystemRebootState = ADUC_SystemRebootState_Required;
-        int success = ADUC_MethodCall_RebootSystem();
-        if (success == 0)
-        {
-            methodCallData->WorkflowData->SystemRebootState = ADUC_SystemRebootState_InProgress;
-        }
-        else
-        {
-            Log_Error("Reboot attempt failed.");
-            methodCallData->WorkflowData->OperationInProgress = false;
-        }
-    }
-    else if (result.ResultCode == ADUC_ApplyResult_SuccessAgentRestartRequired)
-    {
-        // If apply indicated a restart is required, go ahead and restart the agent.
-        Log_Info("Apply indicated success with AgentRestartRequired - restarting the agent now");
-        methodCallData->WorkflowData->SystemRebootState = ADUC_SystemRebootState_Required;
-        int success = ADUC_MethodCall_RestartAgent();
-        if (success == 0)
-        {
-            methodCallData->WorkflowData->AgentRestartState = ADUC_AgentRestartState_InProgress;
-        }
-        else
-        {
-            Log_Error("Agent restart attempt failed.");
-            methodCallData->WorkflowData->OperationInProgress = false;
-        }
-    }
-    else if (result.ResultCode == ADUC_ApplyResult_Success)
-    {
-        //After successfull Apply Action we have to modify the adu-version
-        ADUC_MethodCall_UpdateVersionFile(methodCallData->WorkflowData);
         // An Apply action completed successfully. Continue to the next step.
         methodCallData->WorkflowData->OperationInProgress = false;
     }
@@ -1161,24 +1138,24 @@ ADUC_Result ADUC_MethodCall_IsInstalled(const ADUC_WorkflowData* workflowData)
 }
 
 /**
- * @brief Helper to call into the platform layer for UpdateVersionFile.
+ * @brief Helper to call into the platform layer for GetUpdateRebootState.
  *
  * @param[in] workflowData The workflow data.
  *
- * @return ADUC_Result The result of the UpdateVersionFile call.
+ * @return ADUC_Result The result of the GetUpdateRebootState call.
  */
-ADUC_Result ADUC_MethodCall_UpdateVersionFile(const ADUC_WorkflowData* workflowData)
+ADUC_Result ADUC_MethodCall_GetUpdateRebootState(const ADUC_WorkflowData* workflowData)
 {
     if (workflowData->ContentData == NULL)
     {
-        Log_Info("UpdateVersionFile called before installedCriteria has been initialized.");
-        ADUC_Result result = { .ResultCode = ADUC_UpdateVersionFileResult_Failure };
+        Log_Info("GetUpdateRebootState called before installedCriteria has been initialized.");
+        ADUC_Result result = { .ResultCode = ADUC_GetUpdateRebootStateResult_FAILURE };
         return result;
     }
 
     const ADUC_RegisterData* registerData = &(workflowData->RegisterData);
-    Log_Info("Calling UpdateVersionFileCallback.");
-    return registerData->UpdateVersionFileCallback(
+    Log_Info("Calling GetUpdateRebootStateCallback");
+    return registerData->GetUpdateRebootStateCallback(
         registerData->Token,
         workflowData->WorkflowId,
         workflowData->ContentData->UpdateType,

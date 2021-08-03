@@ -56,7 +56,7 @@ ADUC_Result LinuxPlatformLayer::SetRegisterData(ADUC_RegisterData* data)
     data->CancelCallback = CancelCallback;
 
     data->IsInstalledCallback = IsInstalledCallback;
-    data->UpdateVersionFileCallback = UpdateVersionFileCallback;
+    data->GetUpdateRebootStateCallback = GetUpdateRebootStateCallback;
 
     data->SandboxCreateCallback = SandboxCreateCallback;
     data->SandboxDestroyCallback = SandboxDestroyCallback;
@@ -270,13 +270,12 @@ ADUC_Result LinuxPlatformLayer::Download(const char* workflowId, const char* upd
     {
         // We create the content handler as part of the Download phase since this is the start of the rollout workflow
         // and we need to call into the content handler for any additional downloads it may need.
-        char *typeName[12]; // fus/fsupdate
-        char *typeVersion[11]; // application or firmware
-        ADUC_ParseUpdateType(updateType,typeName,typeVersion);
-        
-        Log_Info("---TMP---Creating ContentHandler here ? + updateType '%s'",updateType);
+        char* typeName[12]; // fus/fsupdate
+        char* typeVersion[11]; // application or firmware
+        ADUC_ParseUpdateType(updateType, typeName, typeVersion);
+
         _contentHandler = ContentHandlerFactory::Create(
-            updateType, { info->WorkFolder, ADUC_LOG_FOLDER, entity.TargetFilename, entity.FileId , *typeVersion});
+            updateType, { info->WorkFolder, ADUC_LOG_FOLDER, entity.TargetFilename, entity.FileId, *typeVersion });
 
         const ADUC_Result contentHandlerResult{ _contentHandler->Download() };
         resultCode = contentHandlerResult.ResultCode;
@@ -387,12 +386,12 @@ LinuxPlatformLayer::IsInstalled(const char* workflowId, const char* updateType, 
     {
         try
         {
-            char *typeName[12]; // fus/fsupdate
-            char *typeVersion[11]; // application or firmware
-            ADUC_ParseUpdateType(updateType,typeName,typeVersion);
+            char* typeName[12]; // fus/fsupdate
+            char* typeVersion[11]; // application or firmware
+            ADUC_ParseUpdateType(updateType, typeName, typeVersion);
 
-             _contentHandler = ContentHandlerFactory::Create(updateType, {*typeVersion});
-           
+            _contentHandler = ContentHandlerFactory::Create(updateType, { *typeVersion });
+
             // _contentHandler = ContentHandlerFactory::Create(updateType, ContentHandlerCreateData{});
         }
         catch (const ADUC::Exception& e)
@@ -415,17 +414,17 @@ LinuxPlatformLayer::IsInstalled(const char* workflowId, const char* updateType, 
 }
 
 /**
- * @brief Class implementation of the UpdateVersionFile callback.
- * Calls into the content handler to update the adu-version file.
+ * @brief Class implementation of the GetUpdateRebootState callback.
+ * Calls into the content handler to update the version file.
  *
  * @param workflowId The workflow ID.
  * @param installedCriteria The installed criteria for the content.
- * @return ADUC_Result The result of the UpdateVersionFile call.
+ * @return ADUC_Result The result of the GetUpdateRebootState call.
  */
 ADUC_Result
-LinuxPlatformLayer::UpdateVersionFile(const char* workflowId, const char* updateType, const char* installedCriteria)
+LinuxPlatformLayer::GetUpdateRebootState(const char* workflowId, const char* updateType, const char* installedCriteria)
 {
-    Log_Info("UpdateVersionFile called workflowId: %s, installed criteria: %s", workflowId, installedCriteria);
+    Log_Info("GetUpdateRebootState called");
 
     // If we don't currently have a content handler, create one that will get replaced once
     // we are in a deployment.
@@ -442,16 +441,16 @@ LinuxPlatformLayer::UpdateVersionFile(const char* workflowId, const char* update
                 updateType,
                 e.Code(),
                 e.Message().c_str());
-            return ADUC_Result{ ADUC_UpdateVersionFileResult_Failure, ADUC_ERC_NOTRECOVERABLE };
+            return ADUC_Result{ ADUC_GetUpdateRebootStateResult_FAILURE, ADUC_ERC_NOTRECOVERABLE };
         }
         catch (...)
         {
             Log_Error("Failed to create content handler, updateType:%s", updateType);
-            return ADUC_Result{ ADUC_UpdateVersionFileResult_Failure, ADUC_ERC_NOTRECOVERABLE };
+            return ADUC_Result{ ADUC_GetUpdateRebootStateResult_FAILURE, ADUC_ERC_NOTRECOVERABLE };
         }
     }
 
-    return _contentHandler->UpdateVersionFile(installedCriteria);
+    return _contentHandler->GetUpdateRebootState();
 }
 
 ADUC_Result LinuxPlatformLayer::SandboxCreate(const char* workflowId, char** workFolder)
@@ -469,16 +468,17 @@ ADUC_Result LinuxPlatformLayer::SandboxCreate(const char* workflowId, char** wor
     std::stringstream folderName;
     folderName << tempPath << "/aduc-dl-" << workflowId;
 
-    // Try to delete existing directory. 
+    // Try to delete existing directory.
     int dir_result;
     std::string tmp;
-    
+
     //Find's all folders in /tmp
-    for(auto &p : std::filesystem::directory_iterator(tempPath))
+    for (auto& p : std::filesystem::directory_iterator(tempPath))
     {
         tmp = p.path();
-        //delete all sandbox folders 
-        if(tmp.std::string::find("/aduc-dl-") != std::string::npos){
+        //delete all sandbox folders
+        if (tmp.std::string::find("/aduc-dl-") != std::string::npos)
+        {
             dir_result = ADUC_SystemUtils_RmDirRecursive(tmp.c_str());
             if (dir_result != 0)
             {
