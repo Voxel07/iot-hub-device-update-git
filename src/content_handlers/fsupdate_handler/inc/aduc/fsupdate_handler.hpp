@@ -26,8 +26,11 @@ std::unique_ptr<ContentHandler> fus_fsupdate_CreateFunc(const ContentHandlerCrea
 class FSUpdateHandlerImpl : public ContentHandler
 {
 public:
-    static std::unique_ptr<ContentHandler>
-    CreateContentHandler(const std::string& workFolder, const std::string& logFolder, const std::string& filename, const std::string& fileType);
+    static std::unique_ptr<ContentHandler> CreateContentHandler(
+        const std::string& workFolder,
+        const std::string& logFolder,
+        const std::string& filename,
+        const std::string& fileType);
 
     // Delete copy ctor, copy assignment, move ctor and move assignment operators.
     FSUpdateHandlerImpl(const FSUpdateHandlerImpl&) = delete;
@@ -43,13 +46,18 @@ public:
     ADUC_Result Apply() override;
     ADUC_Result Cancel() override;
     ADUC_Result IsInstalled(const std::string& installedCriteria) override;
-    ADUC_Result UpdateVersionFile(const std::string& newVersion) override;
+    ADUC_Result GetUpdateRebootState() override;
     static std::string ReadValueFromFile(const std::string& filePath);
 
 protected:
     // Protected constructor, must call CreateContentHandler factory method or from derived simulator class
-    FSUpdateHandlerImpl(const std::string& workFolder, const std::string& logFolder, const std::string& filename, const std::string& fileType) :
-        _workFolder{ workFolder }, _logFolder{ logFolder }, _filename{ filename }, _fileType{ fileType }
+    FSUpdateHandlerImpl(
+        const std::string& workFolder,
+        const std::string& logFolder,
+        const std::string& filename,
+        const std::string& fileType) :
+        _workFolder{ workFolder },
+        _logFolder{ logFolder }, _filename{ filename }, _fileType{ fileType }
     {
     }
 

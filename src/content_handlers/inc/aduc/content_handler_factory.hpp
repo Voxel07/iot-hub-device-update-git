@@ -21,13 +21,11 @@ class ContentHandlerCreateData
 {
 public:
     // Creates an empty ContentHandlerCreateData.
-    // Used to call UpdateVersionFile when outside of a deployment.
+    // Used to call GetUpdateRebootState when outside of a deployment.
     ContentHandlerCreateData() = default;
-    
+
     // Used to call IsInstalled when outside of a deployment.
-    ContentHandlerCreateData(
-        const std::string& fileType
-    ): _fileType(fileType)
+    ContentHandlerCreateData(const std::string& fileType) : _fileType(fileType)
     {
           std::cout << "---TMP---1 Parameter" <<std::endl;
     }
@@ -52,8 +50,7 @@ public:
         const std::string& logFolder,
         const std::string& filename,
         const std::string& fileHash,
-        const std::string& fileType
-        ) :
+        const std::string& fileType) :
         _workFolder(workFolder),
         _logFolder(logFolder), _filename(filename), _fileHash(fileHash), _fileType(fileType)
     {
