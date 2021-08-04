@@ -1024,14 +1024,19 @@ ADUC_Result ADUC_MethodCall_Apply(ADUC_MethodCall_Data* methodCallData)
 
     if (workflowData->SystemRebootState == ADUC_SystemRebootState_Required)
     {
-        Log_Error("Apply called, but a reboot is required, that could mean, that the system reboot failed ");
-        result.ResultCode = ADUC_ApplyResult_Failure;
-        result.ExtendedResultCode = ADUC_ERC_NOTPERMITTED;
-        goto done;
+        if (workflowData->LastReportedState != ADUCITF_State_InstallSucceeded)
+        {
+            Log_Error("Apply called, but a reboot is required, that could mean, that the system reboot failed ");
+            result.ResultCode = ADUC_ApplyResult_Failure;
+            result.ExtendedResultCode = ADUC_ERC_NOTPERMITTED;
+            goto done;
+        }
+
+        ADUC_MethodCall_RebootSystem();
     }
 
     if (workflowData->LastReportedState != ADUCITF_State_InstallSucceeded
-        || workflowData->LastReportedState != ADUCITF_State_Failed)
+        && workflowData->LastReportedState != ADUCITF_State_Failed)
     {
         Log_Error(
             "Apply UpdateAction called in unexpected state: %s!",
