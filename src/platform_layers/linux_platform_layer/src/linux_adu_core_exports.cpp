@@ -102,7 +102,7 @@ int ADUC_RebootSystem()
 
     std::string output;
     std::vector<std::string> args{ "--reboot", "--no-wall" };
-    delay();
+    //delay();
     int exitStatus = ADUC_LaunchChildProcess("/sbin/reboot", args, output);
 
     if (exitStatus != 0)

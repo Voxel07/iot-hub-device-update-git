@@ -290,26 +290,37 @@ ADUC_Result FSUpdateHandlerImpl::GetUpdateRebootState()
         result = { ADUC_GetUpdateRebootStateResult_NO_UPDATE_REBOOT_PENDING };
         Log_Info("FS-Update returned NO_UPDATE_REBOOT_PENDING");
         break;
+
     case 1:
         result = { ADUC_GetUpdateRebootStateResult_FW_UPDATE_REBOOT_FAILED };
         Log_Info("FS-Update returned FW_UPDATE_REBOOT_FAILED");
         break;
+
     case 2:
         result = { ADUC_GetUpdateRebootStateResult_INCOMPLETE_FW_UPDATE };
         Log_Info("FS-Update returned INCOMPLETE_FW_UPDATE");
         break;
+
     case 3:
         result = { ADUC_GetUpdateRebootStateResult_INCOMPLETE_APP_UPDATE };
         Log_Info("FS-Update returned INCOMPLETE_APP_UPDATE");
         break;
+
     case 4:
+        result = { ADUC_GetUpdateRebootStateResult_INCOMPLETE_APP_FW_UPDATE };
+        Log_Info("FS-Update returned INCOMPLETE_APP_AND_UPDATE");
+        break;
+
+    case 5:
         result = { ADUC_GetUpdateRebootStateResult_FAILED_FW_UPDATE };
         Log_Info("FS-Update returned FAILED_FW_UPDATE");
         break;
-    case 5:
+
+    case 6:
         result = { ADUC_GetUpdateRebootStateResult_FAILED_APP_UPDATE };
         Log_Info("FS-Update returned FAILED_APP_UPDATE");
         break;
+
     default:
         result = { ADUC_GetUpdateRebootStateResult_FAILURE };
         Log_Info("FS-Update -urs failed");

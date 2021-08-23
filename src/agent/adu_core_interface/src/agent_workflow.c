@@ -451,27 +451,34 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
 
     if (isInstalledResult.ResultCode == ADUC_IsInstalledResult_NotInstalled)
     {
+        Log_Info("Update was not installed");
         if (desiredAction != ADUCITF_UpdateAction_Download)
         {
             /**
-             * Fail Update
-            */
+             * The Update was not installed and we aren't in a new deployment
+             * so we fail the update and role back the board.
+             */
             Log_Error("Invalid statring action detected %s", ADUCITF_UpdateActionToString(desiredAction));
 
             GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
             ADUC_Result result = { .ResultCode = ADUC_InstallResult_Failure,
                                    .ExtendedResultCode = ADUC_ERC_LOWERLEVEL_INVALID_UPDATE_ACTION };
             ADUC_SetUpdateStateWithResult(workflowData, ADUCITF_State_Failed, result);
+
             /**
-             * Reset the board state by calling FS-Update -cu
-            */
+             * Reset the board state by calling FS-Update -cu aka apply
+             */
+            workflowData->StartupIdleCallSent = true;
             workflowData->CurrentAction = ADUCITF_UpdateAction_Apply;
             workflowData->LastReportedState = ADUCITF_State_Failed;
             ADUC_Workflow_HandleUpdateAction(workflowData);
         }
         else
         {
-            //Start download
+            /**
+             *The Update was not installed, but we are in a new deployment
+             *Start normal workflow
+             */
             Log_Info("There's a pending 'download' action request.");
 
             // There's a pending download request.
@@ -479,40 +486,51 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
             workflowData->StartupIdleCallSent = true;
 
             ADUC_Workflow_HandleUpdateAction(workflowData);
-            Log_Info("---TMP---HandlUpdateAction Finished");
-            ADUC_SetInstalledUpdateIdAndGoToIdle(workflowData, workflowData->ContentData->ExpectedUpdateId);
             goto done;
         }
     }
     else
-    /**
-     * Version was the same
-    */
     {
+        /**
+         * Version was the same so the installation has succeded.
+         * Check if we still have to apply the update.
+         */
+        Log_Info("Update was installed");
         switch (getUrsResult.ResultCode)
         {
         case ADUC_GetUpdateRebootStateResult_NO_UPDATE_REBOOT_PENDING:
             //Go idle
             Log_Info(
-                "IsInstalled call was true - setting installedUpdateId to %s:%s:%s and setting state to Idle",
+                "IsInstalled call was true and there is no UPDATE_REBOOT_PENDING - setting installedUpdateId to %s:%s:%s and setting state to Idle",
                 workflowData->ContentData->ExpectedUpdateId->Provider,
                 workflowData->ContentData->ExpectedUpdateId->Name,
                 workflowData->ContentData->ExpectedUpdateId->Version);
             ADUC_SetInstalledUpdateIdAndGoToIdle(workflowData, workflowData->ContentData->ExpectedUpdateId);
             break;
-        case ADUC_GetUpdateRebootStateResult_INCOMPLETE_APP_UPDATE:
-        case ADUC_UpdateRebootState_INCOMPLETE_FW_UPDATE:
 
+        case ADUC_GetUpdateRebootStateResult_INCOMPLETE_APP_UPDATE:
+        case ADUC_GetUpdateRebootStateResult_INCOMPLETE_FW_UPDATE:
+            //Apply
+            Log_Info("Incomplete Update detected");
             if (desiredAction != ADUCITF_UpdateAction_Apply)
             {
+                /**
+                 * If we get to this state and ther is no apply action pending
+                 * then something must have gone wrong, so we fail the update
+                 */
+                Log_Error("Invalide action Property, %s failing update", ADUCITF_UpdateActionToString(desiredAction));
                 GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
                 ADUC_Result result = { .ResultCode = ADUC_InstallResult_Failure,
                                        .ExtendedResultCode = ADUC_ERC_LOWERLEVEL_INVALID_UPDATE_ACTION };
                 ADUC_SetUpdateStateWithResult(workflowData, ADUCITF_State_Failed, result);
+                workflowData->StartupIdleCallSent = true;
             }
             else
             {
-                //Do apply
+                /**
+                 * Normal workflow. Apply the update and go idle.
+                 */
+                Log_Info("Applying new update");
                 GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
 
                 workflowData->LastReportedState = ADUCITF_State_InstallSucceeded;
@@ -523,13 +541,19 @@ void ADUC_Workflow_HandleStartupWorkflowData(ADUC_WorkflowData* workflowData)
                 ADUC_SetInstalledUpdateIdAndGoToIdle(workflowData, workflowData->ContentData->ExpectedUpdateId);
             }
             break;
+
         default:
+            /**
+             * We shold never reach this. If we do something is wrong an we fail the update.
+             */
+            Log_Info("Invalide state fail update and go idle");
             GenerateUniqueId(workflowData->WorkflowId, ARRAY_SIZE(workflowData->WorkflowId));
             ADUC_Result result = { .ResultCode = ADUC_InstallResult_Failure,
                                    .ExtendedResultCode = ADUC_ERC_LOWERLEVEL_INVALID_UPDATE_ACTION };
             ADUC_SetUpdateStateWithResult(workflowData, ADUCITF_State_Failed, result);
             break;
         }
+
         ADUC_SetUpdateStateWithResult(workflowData, ADUCITF_State_Idle, result);
 
     done:

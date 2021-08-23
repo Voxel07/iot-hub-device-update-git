@@ -42,12 +42,13 @@ typedef enum tagADUC_SystemRebootState
 
 typedef enum tagADUC_UpdateRebootState
 {
-    ADUC_UpdateRebootState_FAILURE = 0, /**< General failure. */
+    ADUC_UpdateRebootState_FAILURE = 7, /**< General failure. */
 
-    ADUC_UpdateRebootState_NO_UPDATE_REBOOT_PENDING = 1,
-    ADUC_UpdateRebootState_FW_UPDATE_REBOOT_FAILED = 2,
-    ADUC_UpdateRebootState_INCOMPLETE_FW_UPDATE = 3,
-    ADUC_UpdateRebootState_INCOMPLETE_APP_UPDATE = 4,
+    ADUC_UpdateRebootState_NO_UPDATE_REBOOT_PENDING = 0,
+    ADUC_UpdateRebootState_FW_UPDATE_REBOOT_FAILED = 1,
+    ADUC_UpdateRebootState_INCOMPLETE_FW_UPDATE = 2,
+    ADUC_UpdateRebootState_INCOMPLETE_APP_UPDATE = 3,
+    ADUC_UpdateRebootState_INCOMPLETE_APP_FW_Update = 4,
     ADUC_UpdateRebootState_FAILED_FW_UPDATE = 5,
     ADUC_UpdateRebootState_FAILED_APP_UPDATE = 6,
 } ADUC_UpdateRebootState;

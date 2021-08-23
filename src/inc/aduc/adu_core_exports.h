@@ -304,14 +304,15 @@ typedef enum tagADUC_IsInstalledResult
 typedef enum tagADUC_GetUpdateRebootStateResult
 {
 
-    ADUC_GetUpdateRebootStateResult_NO_UPDATE_REBOOT_PENDING = 1,
-    ADUC_GetUpdateRebootStateResult_FW_UPDATE_REBOOT_FAILED = 2,
-    ADUC_GetUpdateRebootStateResult_INCOMPLETE_FW_UPDATE = 3,
-    ADUC_GetUpdateRebootStateResult_INCOMPLETE_APP_UPDATE = 4,
-    ADUC_GetUpdateRebootStateResult_FAILED_FW_UPDATE = 5,
-    ADUC_GetUpdateRebootStateResult_FAILED_APP_UPDATE = 6,
+    ADUC_GetUpdateRebootStateResult_NO_UPDATE_REBOOT_PENDING = 0, /**< Default state */
+    ADUC_GetUpdateRebootStateResult_FW_UPDATE_REBOOT_FAILED = 1, /**< Reboot after a successful install failed */
+    ADUC_GetUpdateRebootStateResult_INCOMPLETE_FW_UPDATE = 2, /**< State after a successful fw installation */
+    ADUC_GetUpdateRebootStateResult_INCOMPLETE_APP_UPDATE = 3, /**< State after a successful app installation */
+    ADUC_GetUpdateRebootStateResult_INCOMPLETE_APP_FW_UPDATE = 4, /**< This can only be triggerd by a manual update */
+    ADUC_GetUpdateRebootStateResult_FAILED_FW_UPDATE = 5, /**< State if a fw install fails*/
+    ADUC_GetUpdateRebootStateResult_FAILED_APP_UPDATE = 6, /**< State if a app install fails**/
 
-    ADUC_GetUpdateRebootStateResult_FAILURE = 0, /**< General failure. */
+    ADUC_GetUpdateRebootStateResult_FAILURE = 7, /**< General failure. */
 
 } ADUC_GetUpdateRebootStateResult;
 
@@ -323,6 +324,7 @@ typedef enum tagADUC_GetUpdateRebootStateResult
  * @param installedCriteria The installed criteria string.
  * @return ADUC_Result True if the content is installed.
  */
+
 typedef ADUC_Result (*IsInstalledCallbackFunc)(
     ADUC_Token token, const char* workflowId, const char* updateType, const char* installedCriteria);
 

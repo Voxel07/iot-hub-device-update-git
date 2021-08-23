@@ -75,11 +75,11 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
     {
         // Running inside child process.
         /**
-            * Run child process as 'root'.
-            * fw_setenv and fw_printenv are only accessible to root
-            * This is done in the cild process so we don't mess up the
-            * permissions for logging,conf and do-agent
-        */
+         * Run child process as 'root'.
+         * fw_setenv and fw_printenv are only accessible to root
+         * This is done in the cild process so we don't mess up the
+         * permissions for logging,conf and do-agent
+         */
         int defaultUserId = getuid();
         int effectiveUserId = geteuid();
 
@@ -144,7 +144,7 @@ int ADUC_LaunchChildProcess(const std::string& command, std::vector<std::string>
         // Child process terminated normally.
         // e.g. by calling exit() or _exit(), or by returning from main().
         childExitStatus = WEXITSTATUS(wstatus);
-        Log_Info("---TMP---Child process terminated normally, signal %d", childExitStatus);
+        Log_Info("Child process terminated normally, signal %d", childExitStatus);
     }
     else if (WIFSIGNALED(wstatus))
     {
